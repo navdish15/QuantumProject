@@ -1,0 +1,119 @@
+@import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css');
+
+/* Full Page Background */
+.login-page {
+  height: 100vh;
+  width: 100%;
+  background: url("../assets/quantum.jpg") no-repeat center center/cover;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  padding-right: 100px;
+  position: relative;
+}
+
+/* Left Side Title */
+.left-title {
+  position: absolute;
+  left: 80px;
+  color: white;
+  text-shadow: 0 0 15px #00c8ff;
+}
+
+.left-title h1 {
+  font-size: 3.2rem;
+  font-weight: 800;
+  letter-spacing: 2px;
+}
+
+/* Glassmorphism Box */
+.glass-card {
+  width: 380px;
+  padding: 40px;
+  border-radius: 20px;
+  backdrop-filter: blur(18px);
+  background: rgba(255, 255, 255, 0.08);
+  border: 2px solid rgba(255, 255, 255, 0.25);
+  box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+  text-align: center;
+  color: white;
+}
+
+.glass-card h2 {
+  margin-bottom: 25px;
+  font-weight: 700;
+  font-size: 2rem;
+}
+
+/* Input Fields */
+.input-box {
+  position: relative;
+  margin: 20px 0;
+}
+
+/* FIXED INPUT SPACING + VISIBILITY */
+.input-box input {
+  width: 100%;
+  padding: 12px 15px 12px 45px; /* left padding increased */
+  border-radius: 50px;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  background: rgba(0, 0, 0, 0.45);
+  color: #fff;
+  outline: none;
+  font-size: 15px;
+}
+
+/* FIXED ICON ALIGNMENT */
+.input-box i {
+  position: absolute;
+  left: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 18px;
+  pointer-events: none;
+}
+
+/* Placeholder color */
+.input-box input::placeholder {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+/* Focus Glow */
+.input-box input:focus {
+  border-color: #4fc3f7;
+  box-shadow: 0 0 8px #4fc3f7;
+}
+
+/* Login Button */
+.login-btn {
+  width: 100%;
+  padding: 14px;
+  background: white;
+  border: none;
+  border-radius: 30px;
+  font-size: 1.2rem;
+  font-weight: 600;
+  cursor: pointer;
+  color: #0fb2ff;
+  margin-top: 15px;
+  transition: 0.3s ease;
+}
+
+.login-btn:hover {
+  background: #f2f2f2;
+  transform: translateY(-3px);
+}
+
+/* Footer */
+.login-footer {
+  width: 100%;
+  text-align: center;
+  padding: 12px 0;
+  position: absolute;
+  bottom: 0;
+  color: white;
+  font-size: 14px;
+  opacity: 0.9;
+  letter-spacing: 0.5px;
+}
