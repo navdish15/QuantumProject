@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import AdminLayout from "../../components/AdminLayout";
 import axios from "axios";
 
-const API_BASE = "http://localhost:5000";
+const API_BASE = "https://quantumproject-wbu2.onrender.com";
 
 const AdminExperiments = () => {
   const [users, setUsers] = useState([]);

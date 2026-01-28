@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
-const API_BASE = "http://localhost:5000";
+const API_BASE = "https://quantumproject-wbu2.onrender.com";
 
 const UserExperiments = () => {
   const [experiments, setExperiments] = useState([]);

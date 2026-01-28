@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "http://localhost:5000",
+  baseURL: "https://quantumproject-wbu2.onrender.com",
 });
 
 // Add token automatically
