@@ -31,7 +31,7 @@ useEffect(() => {
   }, []);
 
   const handleDownload = (file) => {
-const url = `${API_BASE}/uploads/experiments/${file.experiment_id}/${file.stored_name}`;
+const url = `${process.env.REACT_APP_API_URL}/uploads/experiments/${file.experiment_id}/${file.stored_name}`;
     window.open(url, "_blank");
   };
 
