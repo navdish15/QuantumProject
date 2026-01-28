@@ -5,7 +5,7 @@ import axios from "axios";
 // Example final URLs:
 //   http://localhost:5000/api/experiments/assigned/:userId
 //   http://localhost:5000/api/experiments/:id/upload
-const API_BASE = process.env.REACT_APP_API_URL || "http://localhost:5000/api";
+const API_BASE = process.env.REACT_APP_API_URL || "https://quantumproject-wbu2.onrender.com";
 
 const api = axios.create({
   baseURL: API_BASE,
