@@ -7,12 +7,16 @@ const ProtectedRoute = ({ children, role }) => {
   let user = {};
   try {
     user = JSON.parse(localStorage.getItem("user") || "{}");
-  } catch {}
+  } catch (err) {
+    user = {};
+  }
 
-  if (!token || !user) {
+  // If no token → go to login
+  if (!token) {
     return <Navigate to="/" replace />;
   }
 
+  // If role is required but user role doesn't match
   if (role && user.role !== role) {
     return <Navigate to="/" replace />;
   }
@@ -20,4 +24,4 @@ const ProtectedRoute = ({ children, role }) => {
   return children;
 };
 
-export default ProtectedRoute;
+export default ProtectedRoute;   // ✅ VERY IMPORTANT
