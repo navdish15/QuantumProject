@@ -25,9 +25,10 @@ const AdminUsers = () => {
     const newStatus = currentStatus === "active" ? "inactive" : "active";
 
     try {
-      await api.put(`/admin/toggle-status/${id}`, {
-        status: newStatus,
-      });
+      await api.put(`/admin/users/${id}/status`, {
+  status: newStatus,
+});
+
       await loadUsers(); // refresh user list
     } catch (err) {
       console.log("Error updating status", err);

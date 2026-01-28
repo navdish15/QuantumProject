@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import api from "../../api";
 
-const API_BASE = "https://quantumproject-wbu2.onrender.com";
 
 const UserExperiments = () => {
   const [experiments, setExperiments] = useState([]);
@@ -10,18 +9,11 @@ const UserExperiments = () => {
   const [loading, setLoading] = useState(true);
 
   const navigate = useNavigate();
-  const token = localStorage.getItem("token");
-
-  const authHeaders = {
-    Authorization: `Bearer ${token}`,
-  };
 
   useEffect(() => {
     const fetchExperiments = async () => {
       try {
-        const res = await axios.get(`${API_BASE}/user/experiments`, {
-          headers: authHeaders,
-        });
+        const res = await api.get("/user/experiments");
         setExperiments(res.data);
       } catch (err) {
         console.error("User experiments load error:", err.response?.data || err);
@@ -32,8 +24,8 @@ const UserExperiments = () => {
     };
 
     fetchExperiments();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
 
   const getStatusStyles = (status) => {
     const base = {

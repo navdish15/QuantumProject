@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import axios from "axios";
+import api from "../api";
 import "./Login.css";
 import { useNavigate } from "react-router-dom";
 
@@ -12,7 +12,7 @@ const Login = () => {
     e.preventDefault();
 
     try {
-      const res = await axios.post("https://quantumproject-wbu2.onrender.com/auth/login", {
+      const res = await api.post("/auth/login", {
         email,
         password,
       });
@@ -20,11 +20,9 @@ const Login = () => {
       if (res.data.message === "Login successful") {
         const { token, user } = res.data;
 
-        // Save to localStorage
         localStorage.setItem("token", token);
         localStorage.setItem("user", JSON.stringify(user));
 
-        // Redirect based on role
         if (user.role === "admin") {
           navigate("/admin-dashboard");
         } else if (user.role === "user") {
@@ -44,13 +42,10 @@ const Login = () => {
   return (
     <>
       <div className="login-page">
-
-        {/* LEFT SIDE TITLE */}
         <div className="left-title">
           <h1>Quantum Neuton</h1>
         </div>
 
-        {/* LOGIN CARD */}
         <div className="glass-card">
           <h2>Login</h2>
 
@@ -82,7 +77,6 @@ const Login = () => {
         </div>
       </div>
 
-      {/* FOOTER SECTION */}
       <footer className="login-footer">
         © {new Date().getFullYear()} Quantum Neuton. All Rights Reserved.
       </footer>

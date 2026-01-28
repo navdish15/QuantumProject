@@ -4,101 +4,100 @@ import api from "../api";
 import { getUser } from "../utils/auth";
 
 const FloatingChatAdmin = () => {
-  const admin = getUser(); // logged-in admin (id = 2 in your DB)
+  const admin = getUser();
 
   const [isOpen, setIsOpen] = useState(false);
-
   const [users, setUsers] = useState([]);
   const [selectedUserId, setSelectedUserId] = useState(null);
   const [selectedUserName, setSelectedUserName] = useState("");
 
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState("");
-  const [loadingMessages, setLoadingMessages] = useState(false);
-  const [sending, setSending] = useState(false);
-  const [loadingUsers, setLoadingUsers] = useState(false);
 
-  // 🔔 total unread messages for admin
+  const [loadingMessages, setLoadingMessages] = useState(false);
+  const [loadingUsers, setLoadingUsers] = useState(false);
+  const [sending, setSending] = useState(false);
+
   const [unreadCount, setUnreadCount] = useState(0);
 
-  // draggable position
-  const [position, setPosition] = useState({ x: 20, y: 20 });
-  const [isDragging, setIsDragging] = useState(false);
-  const dragOffsetRef = useRef({ x: 0, y: 0 });
+  const messagesRef = useRef(null);
 
-  // initial bottom-right
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const size = 60;
-      setPosition({
-        x: window.innerWidth - size - 20,
-        y: window.innerHeight - size - 20,
-      });
-    }
-  }, []);
-
-  // load list of users for admin to chat with
+  // ---------------- LOAD USERS ----------------
   const loadUsers = useCallback(async () => {
     try {
       setLoadingUsers(true);
-      const res = await api.get("/admin/users"); // existing route
+      const res = await api.get("/admin/users");
+
       const list = Array.isArray(res.data)
         ? res.data
         : Array.isArray(res.data?.users)
         ? res.data.users
         : [];
+
       const filtered = list.filter((u) => u.role !== "admin");
       setUsers(filtered);
 
-      if (!selectedUserId && filtered.length > 0) {
-        setSelectedUserId(filtered[0].id);
-        setSelectedUserName(filtered[0].name || filtered[0].email);
+      const stillExists = filtered.some((u) => u.id === selectedUserId);
+
+      if (!selectedUserId || !stillExists) {
+        if (filtered.length > 0) {
+          const u = filtered[0];
+          setSelectedUserId(u.id);
+          setSelectedUserName(u.name || u.email);
+        } else {
+          setSelectedUserId(null);
+          setSelectedUserName("");
+        }
       }
     } catch (err) {
-      console.error("Failed to load users for chat", err);
+      console.error(err);
     } finally {
       setLoadingUsers(false);
     }
   }, [selectedUserId]);
 
-  // load messages with selected user
+  // ---------------- LOAD MESSAGES ----------------
   const loadMessages = useCallback(async () => {
     if (!selectedUserId) return;
     try {
       setLoadingMessages(true);
-      const res = await api.get(`/messages/conversation/${selectedUserId}`);
+      const res = await api.get(
+        `/messages/conversation/${selectedUserId}`
+      );
       setMessages(Array.isArray(res.data) ? res.data : []);
     } catch (err) {
-      console.error("Failed to load messages", err);
+      console.error(err);
     } finally {
       setLoadingMessages(false);
     }
   }, [selectedUserId]);
 
-  // ✅ load unread count for admin
+  // ---------------- AUTO NAME SYNC ----------------
+  useEffect(() => {
+    if (!selectedUserId) return;
+    const u = users.find((x) => x.id === selectedUserId);
+    if (u) setSelectedUserName(u.name || u.email);
+  }, [users, selectedUserId]);
+
+  // ---------------- UNREAD COUNT ----------------
   const loadUnreadCount = useCallback(async () => {
     try {
       const res = await api.get("/messages/unread-count");
-      const count = res.data?.count || 0;
-      setUnreadCount(count);
-    } catch (err) {
-      console.error("Failed to load unread count (admin)", err);
-    }
+      setUnreadCount(res.data?.count || 0);
+    } catch {}
   }, []);
 
-  // ✅ mark messages from selectedUser -> admin as read
   const markConversationRead = useCallback(async () => {
     if (!selectedUserId) return;
     try {
-      await api.put(`/messages/conversation/${selectedUserId}/mark-read`);
-      // reload unread count after marking
+      await api.put(
+        `/messages/conversation/${selectedUserId}/mark-read`
+      );
       loadUnreadCount();
-    } catch (err) {
-      console.error("Failed to mark admin messages as read", err);
-    }
+    } catch {}
   }, [selectedUserId, loadUnreadCount]);
 
-  // when popup opens, load users & unread count
+  // ---------------- OPEN EFFECT ----------------
   useEffect(() => {
     if (isOpen) {
       loadUsers();
@@ -106,356 +105,173 @@ const FloatingChatAdmin = () => {
     }
   }, [isOpen, loadUsers, loadUnreadCount]);
 
-  // poll unread count globally (even if popup closed)
+  // ---------------- POLLING ----------------
   useEffect(() => {
-    loadUnreadCount();
-    const interval = setInterval(loadUnreadCount, 15000);
-    return () => clearInterval(interval);
+    const i = setInterval(loadUnreadCount, 15000);
+    return () => clearInterval(i);
   }, [loadUnreadCount]);
 
-  // when selected user changes & popup is open, load that conversation + poll
   useEffect(() => {
     if (!isOpen || !selectedUserId) return;
-    loadMessages();
-    markConversationRead(); // mark that conversation as read when viewing
 
-    const interval = setInterval(() => {
+    loadMessages();
+    markConversationRead();
+
+    const i = setInterval(() => {
       loadMessages();
       markConversationRead();
     }, 10000);
 
-    return () => clearInterval(interval);
+    return () => clearInterval(i);
   }, [isOpen, selectedUserId, loadMessages, markConversationRead]);
 
+  // ---------------- AUTO SCROLL ----------------
+  useEffect(() => {
+    if (!isOpen) return;
+    const t = setTimeout(() => {
+      messagesRef.current?.scrollTo({
+        top: messagesRef.current.scrollHeight,
+        behavior: "smooth",
+      });
+    }, 50);
+    return () => clearTimeout(t);
+  }, [messages, isOpen]);
+
+  // ---------------- SEND ----------------
   const handleSend = async (e) => {
     e.preventDefault();
-    const content = newMessage.trim();
-    if (!content || !selectedUserId) return;
+    if (!newMessage.trim() || !selectedUserId) return;
 
     setSending(true);
     try {
       await api.post("/messages", {
         receiverId: selectedUserId,
-        content,
+        content: newMessage.trim(),
       });
       setNewMessage("");
       loadMessages();
-    } catch (err) {
-      console.error("Failed to send message", err);
     } finally {
       setSending(false);
     }
   };
 
-  // drag handlers (mouse)
-  const handleMouseDown = (e) => {
-    setIsDragging(true);
-    dragOffsetRef.current = {
-      x: e.clientX - position.x,
-      y: e.clientY - position.y,
-    };
-  };
-
-  useEffect(() => {
-    const handleMouseMove = (e) => {
-      if (!isDragging) return;
-      setPosition({
-        x: e.clientX - dragOffsetRef.current.x,
-        y: e.clientY - dragOffsetRef.current.y,
-      });
-    };
-    const handleMouseUp = () => {
-      if (isDragging) setIsDragging(false);
-    };
-
-    if (isDragging) {
-      window.addEventListener("mousemove", handleMouseMove);
-      window.addEventListener("mouseup", handleMouseUp);
-    }
-    return () => {
-      window.removeEventListener("mousemove", handleMouseMove);
-      window.removeEventListener("mouseup", handleMouseUp);
-    };
-  }, [isDragging]);
-
-  // drag handlers (touch)
-  const handleTouchStart = (e) => {
-    const touch = e.touches[0];
-    setIsDragging(true);
-    dragOffsetRef.current = {
-      x: touch.clientX - position.x,
-      y: touch.clientY - position.y,
-    };
-  };
-
-  useEffect(() => {
-    const handleTouchMove = (e) => {
-      if (!isDragging) return;
-      const touch = e.touches[0];
-      setPosition({
-        x: touch.clientX - dragOffsetRef.current.x,
-        y: touch.clientY - dragOffsetRef.current.y,
-      });
-    };
-    const handleTouchEnd = () => {
-      if (isDragging) setIsDragging(false);
-    };
-
-    if (isDragging) {
-      window.addEventListener("touchmove", handleTouchMove);
-      window.addEventListener("touchend", handleTouchEnd);
-      window.addEventListener("touchcancel", handleTouchEnd);
-    }
-    return () => {
-      window.removeEventListener("touchmove", handleTouchMove);
-      window.removeEventListener("touchend", handleTouchEnd);
-      window.removeEventListener("touchcancel", handleTouchEnd);
-    };
-  }, [isDragging]);
-
-  // popup position
-  const popupStyle = {
-    position: "fixed",
-    width: 360,
-    maxHeight: 420,
-    left: Math.max(10, position.x - 300),
-    top: Math.max(10, position.y - 380),
-    background: "#ffffff",
-    borderRadius: 12,
-    boxShadow: "0 10px 30px rgba(15,23,42,0.25)",
-    display: "flex",
-    flexDirection: "column",
-    overflow: "hidden",
-    zIndex: 1000,
-  };
-
   const badgeText =
-    unreadCount > 9 ? "9+" : unreadCount > 0 ? String(unreadCount) : "";
+    unreadCount > 9 ? "9+" : unreadCount > 0 ? unreadCount : "";
 
   return (
     <>
       {isOpen && (
-        <div style={popupStyle}>
-          <div
-            style={{
-              padding: "10px 12px",
-              background: "#0f172a",
-              color: "#fff",
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-            }}
-          >
-            <span style={{ fontSize: 14 }}>
-              Admin Chat
-              {admin?.name ? ` – ${admin.name}` : ""}
-            </span>
-            <button
-              onClick={() => setIsOpen(false)}
-              style={{
-                border: "none",
-                background: "transparent",
-                color: "#fff",
-                fontSize: 16,
-                cursor: "pointer",
-              }}
-            >
-              ×
-            </button>
-          </div>
-
-          {/* user selection bar */}
-          <div
-            style={{
-              padding: 8,
-              borderBottom: "1px solid #e5e7eb",
-              background: "#f9fafb",
-              display: "flex",
-              alignItems: "center",
-              gap: 8,
-            }}
-          >
-            <span style={{ fontSize: 12, color: "#6b7280" }}>User:</span>
-            {loadingUsers ? (
-              <span style={{ fontSize: 12 }}>Loading users...</span>
-            ) : users.length === 0 ? (
-              <span style={{ fontSize: 12, color: "#9ca3af" }}>
-                No users found
-              </span>
-            ) : (
-              <select
-                value={selectedUserId || ""}
-                onChange={(e) => {
-                  const id = Number(e.target.value);
-                  setSelectedUserId(id || null);
-                  const u = users.find((user) => user.id === id);
-                  setSelectedUserName(
-                    u ? u.name || u.email || `User #${u.id}` : ""
-                  );
-                }}
-                style={{
-                  flex: 1,
-                  padding: "4px 6px",
-                  borderRadius: 6,
-                  border: "1px solid #d1d5db",
-                  fontSize: 12,
-                }}
-              >
-                {users.map((u) => (
-                  <option key={u.id} value={u.id}>
-                    {u.name || u.email} (#{u.id})
-                  </option>
-                ))}
-              </select>
-            )}
-          </div>
-
-          {/* messages */}
+        <div
+          style={{
+            position: "fixed",
+            right: 20,
+            bottom: 90,
+            width: 360,
+            height: 420,
+            background: "#fff",
+            borderRadius: 12,
+            boxShadow: "0 10px 30px rgba(0,0,0,0.2)",
+            display: "flex",
+            flexDirection: "column",
+            overflow: "hidden",
+            zIndex: 1000,
+          }}
+        >
+          {/* Header */}
           <div
             style={{
               padding: 10,
-              flex: 1,
-              overflowY: "auto",
-              background: "#f8fafc",
-              fontSize: 13,
+              background: "#0f172a",
+              color: "#fff",
+              fontSize: 14,
             }}
           >
-            {(!selectedUserId || users.length === 0) && (
-              <div
-                style={{
-                  textAlign: "center",
-                  padding: 10,
-                  color: "#6b7280",
-                }}
-              >
-                Select a user to view conversation
-              </div>
-            )}
-
-            {selectedUserId && loadingMessages && (
-              <div style={{ textAlign: "center", padding: 10 }}>
-                Loading messages...
-              </div>
-            )}
-
-            {selectedUserId &&
-              !loadingMessages &&
-              messages.length === 0 && (
-                <div
-                  style={{
-                    textAlign: "center",
-                    padding: 10,
-                    color: "#64748b",
-                  }}
-                >
-                  No messages with{" "}
-                  <strong>
-                    {selectedUserName || `User #${selectedUserId}`}
-                  </strong>{" "}
-                  yet.
-                </div>
-              )}
-
-            {selectedUserId &&
-              messages.map((m) => {
-                const isAdmin = m.sender_id === admin?.id;
-                return (
-                  <div
-                    key={m.id}
-                    style={{
-                      display: "flex",
-                      justifyContent: isAdmin ? "flex-end" : "flex-start",
-                      marginBottom: 6,
-                    }}
-                  >
-                    <div
-                      style={{
-                        maxWidth: "70%",
-                        padding: "6px 8px",
-                        borderRadius: 8,
-                        fontSize: 13,
-                        background: isAdmin ? "#0f172a" : "#e5f2ff",
-                        color: isAdmin ? "#fff" : "#0f172a",
-                      }}
-                    >
-                      <div>{m.content}</div>
-                      <div
-                        style={{
-                          fontSize: 10,
-                          marginTop: 2,
-                          opacity: 0.7,
-                          textAlign: "right",
-                        }}
-                      >
-                        {m.created_at
-                          ? new Date(m.created_at).toLocaleTimeString()
-                          : ""}
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
+            Admin Chat {admin?.name ? `– ${admin.name}` : ""}
           </div>
 
-          {/* input */}
-          <form
-            onSubmit={handleSend}
+          {/* Users */}
+          <div style={{ padding: 8, borderBottom: "1px solid #eee" }}>
+            <select
+              value={selectedUserId || ""}
+              onChange={(e) =>
+                setSelectedUserId(Number(e.target.value))
+              }
+              style={{ width: "100%" }}
+            >
+              {users.map((u) => (
+                <option key={u.id} value={u.id}>
+                  {u.name || u.email}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Messages */}
+          <div
+            ref={messagesRef}
             style={{
-              padding: 8,
-              borderTop: "1px solid #e5e7eb",
-              display: "flex",
-              gap: 6,
+              flex: 1,
+              overflowY: "auto",
+              padding: 10,
+              background: "#f8fafc",
             }}
           >
+            {messages.map((m) => {
+              const isAdmin = m.sender_id === admin?.id;
+              return (
+                <div
+                  key={m.id}
+                  style={{
+                    textAlign: isAdmin ? "right" : "left",
+                    marginBottom: 6,
+                  }}
+                >
+                  <div
+                    style={{
+                      display: "inline-block",
+                      padding: "6px 8px",
+                      borderRadius: 8,
+                      background: isAdmin
+                        ? "#0f172a"
+                        : "#e5f2ff",
+                      color: isAdmin ? "#fff" : "#000",
+                      fontSize: 13,
+                      maxWidth: "70%",
+                    }}
+                  >
+                    {m.content}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Input */}
+          <form
+            onSubmit={handleSend}
+            style={{ display: "flex", padding: 8, gap: 6 }}
+          >
             <input
-              type="text"
-              placeholder={
-                selectedUserId ? "Type a message..." : "Select a user first"
-              }
               value={newMessage}
-              onChange={(e) => setNewMessage(e.target.value)}
-              disabled={!selectedUserId}
-              style={{
-                flex: 1,
-                padding: "6px 8px",
-                borderRadius: 6,
-                border: "1px solid #d1d5db",
-                outline: "none",
-                fontSize: 13,
-                backgroundColor: selectedUserId ? "#ffffff" : "#f3f4f6",
-              }}
+              onChange={(e) =>
+                setNewMessage(e.target.value)
+              }
+              style={{ flex: 1 }}
             />
-            <button
-              type="submit"
-              disabled={sending || !selectedUserId}
-              style={{
-                padding: "6px 10px",
-                borderRadius: 6,
-                border: "none",
-                background: "#0f172a",
-                color: "#fff",
-                fontSize: 13,
-                cursor: sending || !selectedUserId ? "not-allowed" : "pointer",
-                opacity: sending || !selectedUserId ? 0.6 : 1,
-              }}
-            >
+            <button type="submit" disabled={sending}>
               Send
             </button>
           </form>
         </div>
       )}
 
-      {/* floating circle + unread badge */}
+      {/* Floating button */}
       <div
-        onMouseDown={handleMouseDown}
-        onTouchStart={handleTouchStart}
-        onClick={() => {
-          if (!isDragging) setIsOpen((prev) => !prev);
-        }}
+        onClick={() => setIsOpen((p) => !p)}
         style={{
           position: "fixed",
-          left: position.x,
-          top: position.y,
+          right: 20,
+          bottom: 20,
           width: 60,
           height: 60,
           borderRadius: "50%",
@@ -464,47 +280,11 @@ const FloatingChatAdmin = () => {
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          fontSize: 26,
+          fontSize: 24,
           cursor: "pointer",
-          boxShadow: "0 10px 20px rgba(15,23,42,0.35)",
-          zIndex: 999,
-          userSelect: "none",
         }}
       >
-        <div
-          style={{
-            position: "relative",
-            width: "100%",
-            height: "100%",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-        >
-          <span>💬</span>
-          {unreadCount > 0 && (
-            <span
-              style={{
-                position: "absolute",
-                top: 4,
-                right: 8,
-                minWidth: 18,
-                height: 18,
-                borderRadius: 999,
-                background: "#ef4444",
-                color: "#fff",
-                fontSize: 11,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                padding: "0 4px",
-                boxShadow: "0 0 0 2px #0f172a",
-              }}
-            >
-              {badgeText}
-            </span>
-          )}
-        </div>
+        💬 {badgeText}
       </div>
     </>
   );

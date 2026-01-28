@@ -181,14 +181,14 @@ const AdminLayout = ({ children }) => {
   const unreadCount = notifications.filter((n) => !n.is_read).length;
 
   // compute avatar src: prefer avatar_url, then avatar, then default
-  const avatarSrc =
-    profile.avatar_url ||
-    (profile.avatar
-      ? profile.avatar.startsWith("http")
-        ? profile.avatar
-        : `${API_BASE}${profile.avatar}`
-      : DEFAULT_AVATAR) ||
-    DEFAULT_AVATAR;
+const avatarSrc =
+  profile.avatar_url ||
+  (profile.avatar
+    ? profile.avatar.startsWith("http")
+      ? profile.avatar
+      : `${API_BASE}/${profile.avatar.replace(/^\/+/, "")}`
+    : DEFAULT_AVATAR);
+
 
   return (
     <div className="dashboard-container">

@@ -65,15 +65,9 @@ const AdminLogs = () => {
   }, [loadLogs]);
 
   const applyFilters = () => {
-    setPage(1);
-    // loadLogs will run because dependencies changed (page/event/etc)
-    loadLogs();
-  };
+  setPage(1);
+};
 
-  // export base (fallback to window origin when api.baseURL not set)
-  const getExportBase = () => {
-    return api.defaults?.baseURL || window.location.origin;
-  };
 
   return (
     <AdminLayout>
@@ -160,16 +154,30 @@ const AdminLogs = () => {
 
           {/* CSV EXPORT BUTTON */}
           <button
-            onClick={() => {
-              const base = getExportBase();
-              const params = new URLSearchParams();
-              if (event) params.append("event", event);
-              if (severity) params.append("severity", severity);
-              if (userId) params.append("user_id", userId);
-              if (search) params.append("q", search);
-              const url = `${base.replace(/\/$/, "")}/admin/logs/export?${params.toString()}`;
-              window.open(url, "_blank");
-            }}
+            onClick={async () => {
+  try {
+    const res = await api.get("/admin/logs/export", {
+      params: {
+        event: event || undefined,
+        severity: severity || undefined,
+        user_id: userId || undefined,
+        q: search || undefined,
+      },
+      responseType: "blob",
+    });
+
+    const blob = new Blob([res.data], { type: "text/csv" });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "logs.csv";
+    a.click();
+    window.URL.revokeObjectURL(url);
+  } catch (err) {
+    console.error("Export failed", err);
+  }
+}}
+
             style={{
               padding: "8px 15px",
               background: "#10b981",

@@ -1,9 +1,7 @@
 // src/pages/users/UserFiles.js
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import api from "../../api";
 import { useNavigate } from "react-router-dom";
-
-const API_BASE = "https://quantumproject-wbu2.onrender.com";
 
 const UserFiles = () => {
   const [files, setFiles] = useState([]);
@@ -13,19 +11,12 @@ const UserFiles = () => {
 
   const navigate = useNavigate();
 
-  useEffect(() => {
+useEffect(() => {
     const fetchFiles = async () => {
       try {
         setError("");
 
-        const token = localStorage.getItem("token");
-
-        const res = await axios.get(`${API_BASE}/experiments/user`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-
+        const res = await api.get("/experiments/user");
         setFiles(Array.isArray(res.data) ? res.data : []);
       } catch (err) {
         console.error("Error loading files", err);

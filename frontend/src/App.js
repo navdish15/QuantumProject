@@ -1,8 +1,8 @@
-// src/App.js
 import React from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
-
 import Login from "./pages/Login";
+import ProtectedRoute from "./components/ProtectedRoute";
+import FloatingChatAdmin from "./components/FloatingChatAdmin"; // ✅ IMPORTANT
 
 // ADMIN
 import AdminDashboard from "./pages/admin/AdminDashboard";
@@ -21,34 +21,131 @@ import ExperimentDetails from "./pages/users/ExperimentDetails";
 import UserFiles from "./pages/users/UserFiles";
 
 function App() {
+  const token = localStorage.getItem("token");
+
+  let user = {};
+  try {
+    user = JSON.parse(localStorage.getItem("user") || "{}");
+  } catch {
+    user = {};
+  }
+
   return (
     <Router>
-      <Routes>
-        <Route path="/" element={<Login />} />
+      <>
+        <Routes>
+          {/* ---------- LOGIN / ROOT REDIRECT ---------- */}
+          <Route
+            path="/"
+            element={
+              token ? (
+                user?.role === "admin" ? (
+                  <Navigate to="/admin-dashboard" replace />
+                ) : (
+                  <Navigate to="/user" replace />
+                )
+              ) : (
+                <Login />
+              )
+            }
+          />
 
-        {/* ------------------ ADMIN ROUTES ------------------ */}
-        <Route path="/admin-dashboard" element={<AdminDashboard />} />
-        <Route path="/create-user" element={<CreateUser />} />
-        <Route path="/admin/users" element={<AdminUsers />} />
-        <Route path="/admin/logs" element={<AdminLogs />} />
-        <Route path="/settings" element={<Settings />} />
-        <Route path="/admin-experiments" element={<AdminExperiments />} />
+          {/* ------------------ ADMIN ROUTES ------------------ */}
+          <Route
+            path="/admin-dashboard"
+            element={
+              <ProtectedRoute role="admin">
+                <AdminDashboard />
+              </ProtectedRoute>
+            }
+          />
 
-        {/* Approved Experiment Files */}
-        <Route path="/admin/experiment-files" element={<AdminExperimentFiles />} />
-        <Route path="/admin/experiment-files/:id" element={<AdminExperimentFiles />} />
+          <Route
+            path="/create-user"
+            element={
+              <ProtectedRoute role="admin">
+                <CreateUser />
+              </ProtectedRoute>
+            }
+          />
 
-        {/* ------------------ USER ROUTES ------------------ */}
-        <Route path="/user" element={<UserLayout />}>
-          <Route index element={<UserDashboard />} />
-          <Route path="experiments" element={<UserExperiments />} />
-          <Route path="experiments/:id" element={<ExperimentDetails />} />
-          <Route path="files" element={<UserFiles />} />
-        </Route>
+          <Route
+            path="/admin/users"
+            element={
+              <ProtectedRoute role="admin">
+                <AdminUsers />
+              </ProtectedRoute>
+            }
+          />
 
-        {/* Redirect old route */}
-        <Route path="/user-dashboard" element={<Navigate to="/user" replace />} />
-      </Routes>
+          <Route
+            path="/admin/logs"
+            element={
+              <ProtectedRoute role="admin">
+                <AdminLogs />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/settings"
+            element={
+              <ProtectedRoute role="admin">
+                <Settings />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/admin-experiments"
+            element={
+              <ProtectedRoute role="admin">
+                <AdminExperiments />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* experiment files */}
+          <Route
+            path="/admin/experiment-files"
+            element={
+              <ProtectedRoute role="admin">
+                <AdminExperimentFiles />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/admin/experiment-files/:id"
+            element={
+              <ProtectedRoute role="admin">
+                <AdminExperimentFiles />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* ------------------ USER ROUTES ------------------ */}
+          <Route
+            path="/user"
+            element={
+              <ProtectedRoute role="user">
+                <UserLayout />
+              </ProtectedRoute>
+            }
+          >
+            <Route index element={<UserDashboard />} />
+            <Route path="experiments" element={<UserExperiments />} />
+            <Route path="experiments/:id" element={<ExperimentDetails />} />
+            <Route path="files" element={<UserFiles />} />
+          </Route>
+
+          {/* old support */}
+          <Route path="/user-dashboard" element={<Navigate to="/user" replace />} />
+        </Routes>
+
+        {/* ✅ CHAT ALWAYS MOUNTED */}
+        <FloatingChatAdmin />
+      </>
     </Router>
   );
 }

@@ -1,9 +1,7 @@
 // src/pages/users/ExperimentDetails.js
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import axios from "axios";
-
-const API_BASE = "https://quantumproject-wbu2.onrender.com";
+import api from "../../api";
 
 const ExperimentDetails = () => {
   const { id } = useParams();
@@ -15,30 +13,24 @@ const ExperimentDetails = () => {
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
 
-  // files state
   const [files, setFiles] = useState([]);
   const [fileError, setFileError] = useState("");
   const [uploading, setUploading] = useState(false);
   const [deletingFileId, setDeletingFileId] = useState(null);
 
-  // report details (tools/procedure/result) state
   const [showReportForm, setShowReportForm] = useState(false);
   const [report, setReport] = useState({ tools_used: "", procedure_text: "", result: "" });
   const [reportLoading, setReportLoading] = useState(false);
   const [reportSuccess, setReportSuccess] = useState("");
   const [reportError, setReportError] = useState("");
 
-  const token = localStorage.getItem("token");
-  const authHeaders = { Authorization: `Bearer ${token}` };
 
-  // helper to load files for this experiment
   const fetchFiles = async () => {
     try {
-      const res = await axios.get(`${API_BASE}/experiments/${id}/files`, { headers: authHeaders });
+      const res = await api.get(`/experiments/${id}/files`);
       setFiles(res.data);
     } catch (err) {
       console.error("Files load error:", err.response?.data || err);
-      // no setFileError here → user won’t see error just by opening the page
     }
   };
 
@@ -49,7 +41,7 @@ const ExperimentDetails = () => {
     setLoading(true);
 
     try {
-      const res = await axios.get(`${API_BASE}/user/experiments/${id}`, { headers: authHeaders });
+      const res = await api.get(`/user/experiments/${id}`);
       setExperiment(res.data);
       await fetchFiles();
     } catch (err) {
@@ -63,7 +55,6 @@ const ExperimentDetails = () => {
 
   useEffect(() => {
     fetchExperiment();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
   // auto hide success
@@ -95,11 +86,7 @@ const ExperimentDetails = () => {
     setSuccess("");
     setUpdating(true);
     try {
-      await axios.put(
-        `${API_BASE}/user/experiments/${id}/status`,
-        { status: "done" },
-        { headers: authHeaders }
-      );
+      await api.put(`/user/experiments/${id}/status`, { status: "done" });
       setSuccess("Experiment marked as done");
       setExperiment((prev) => (prev ? { ...prev, status: "done" } : prev));
     } catch (err) {
@@ -125,14 +112,15 @@ const ExperimentDetails = () => {
       return;
     }
 
-    const formData = new FormData();
+    const formData = new FormData();  
     formData.append("file", file);
 
     setUploading(true);
     try {
-      await axios.post(`${API_BASE}/experiments/${id}/files`, formData, {
-        headers: { ...authHeaders, "Content-Type": "multipart/form-data" },
+      await api.post(`/experiments/${id}/files`, formData, {
+      headers: { "Content-Type": "multipart/form-data" },
       });
+
       setSuccess("File uploaded successfully");
       await fetchFiles();
     } catch (err) {
@@ -150,7 +138,7 @@ const ExperimentDetails = () => {
     setDeletingFileId(fileId);
 
     try {
-      await axios.delete(`${API_BASE}/experiments/${id}/files/${fileId}`, { headers: authHeaders });
+      await api.delete(`/experiments/${id}/files/${fileId}`);
       setSuccess("File deleted");
       await fetchFiles();
     } catch (err) {
@@ -173,13 +161,8 @@ const ExperimentDetails = () => {
     setReportSuccess("");
 
     try {
-      await axios.post(
-        `${API_BASE}/experiments/${id}/report`,
-        report,
-        { headers: authHeaders }
-      );
+      await api.post(`/experiments/${id}/report`, report);
       setReportSuccess("Experiment details submitted successfully");
-      // optional: close form after submit
       setShowReportForm(false);
     } catch (err) {
       console.error("Report submit error:", err.response?.data || err);
@@ -316,7 +299,7 @@ const ExperimentDetails = () => {
                 <tbody>
                   {files.map((file) => {
                     const sizeMB = file.size ? (file.size / (1024 * 1024)).toFixed(2) : "-";
-                    const downloadUrl = `${API_BASE}/uploads/experiments/${file.experiment_id}/${file.stored_name}`;
+                    const downloadUrl = `${api.defaults.baseURL}/uploads/experiments/${file.experiment_id}/${file.stored_name}`;
 
                     return (
                       <tr key={file.id}>

@@ -3,6 +3,7 @@
   height: 100vh;
   display: flex;
   flex-direction: column;
+  overflow: hidden;   /* ✅ ADD THIS */
 }
 
 /* TOP NAVBAR */
@@ -29,7 +30,9 @@
 .dashboard-body {
   display: flex;
   flex: 1;
+  overflow: hidden;   /* ✅ ADD THIS */
 }
+
 
 /* SIDEBAR */
 .sidebar {
@@ -37,7 +40,9 @@
   background: #0c1230;
   color: white;
   padding: 25px 20px;
+  overflow-y: auto;   /* ✅ ADD THIS */
 }
+
 
 .menu-title {
   font-size: 14px;
@@ -69,7 +74,9 @@
   flex: 1;
   padding: 40px;
   background: #f5f7fc;
+  overflow-y: auto;   /* ✅ ADD THIS */
 }
+
 
 .cards-row {
   display: flex;

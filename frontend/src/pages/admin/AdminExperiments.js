@@ -1,9 +1,11 @@
 // src/pages/admin/AdminExperiments.js
 import React, { useEffect, useState } from "react";
 import AdminLayout from "../../components/AdminLayout";
-import axios from "axios";
+import api from "../../api";
 
-const API_BASE = "https://quantumproject-wbu2.onrender.com";
+const API_BASE =
+  (api.defaults?.baseURL && api.defaults.baseURL.replace(/\/$/, "")) ||
+  window.location.origin;
 
 const AdminExperiments = () => {
   const [users, setUsers] = useState([]);
@@ -26,10 +28,6 @@ const AdminExperiments = () => {
   const [showEditModal, setShowEditModal] = useState(false);
   const [editForm, setEditForm] = useState({ id: "", title: "", description: "" });
   const [editLoading, setEditLoading] = useState(false);
-
-  const token = localStorage.getItem("token");
-  const authHeaders = { Authorization: `Bearer ${token}` };
-
   useEffect(() => {
     fetchUsers();
     fetchExperiments();
@@ -45,7 +43,7 @@ const AdminExperiments = () => {
 
   const fetchUsers = async () => {
     try {
-      const res = await axios.get(`${API_BASE}/admin/users`, { headers: authHeaders });
+      const res = await api.get("/admin/users");
       const nonAdminUsers = res.data.filter((u) => u.role !== "admin");
       setUsers(nonAdminUsers);
     } catch (err) {
@@ -56,7 +54,7 @@ const AdminExperiments = () => {
 
   const fetchExperiments = async () => {
     try {
-      const res = await axios.get(`${API_BASE}/admin/experiments`, { headers: authHeaders });
+      const res = await api.get("/admin/experiments");
       setExperiments(res.data);
     } catch (err) {
       console.error("Load experiments error:", err.response?.data || err);
@@ -81,12 +79,7 @@ const AdminExperiments = () => {
 
     setLoading(true);
     try {
-      await axios.post(
-        `${API_BASE}/admin/experiments`,
-        { title: form.title, description: form.description, assigned_to: form.assigned_to || null },
-        { headers: authHeaders }
-      );
-
+      await api.post("/admin/experiments", {title: form.title,description: form.description,assigned_to: form.assigned_to || null,});
       setSuccess("Experiment created successfully");
       setForm({ title: "", description: "", assigned_to: "" });
       fetchExperiments();
@@ -103,11 +96,7 @@ const AdminExperiments = () => {
     setError("");
     setSuccess("");
     try {
-      await axios.put(
-        `${API_BASE}/admin/experiments/${id}/status`,
-        { status: newStatus },
-        { headers: authHeaders }
-      );
+      await api.put(`/admin/experiments/${id}/status`, {status: newStatus,});
       setSuccess("Status updated");
       fetchExperiments();
     } catch (err) {
@@ -120,11 +109,7 @@ const AdminExperiments = () => {
     setError("");
     setSuccess("");
     try {
-      await axios.put(
-        `${API_BASE}/admin/experiments/${id}/assign`,
-        { assigned_to: assignedTo || null },
-        { headers: authHeaders }
-      );
+    await api.put(`/admin/experiments/${id}/assign`, {assigned_to: assignedTo || null,});
       setSuccess("Assignment updated");
       fetchExperiments();
     } catch (err) {
@@ -179,8 +164,8 @@ const AdminExperiments = () => {
 
     try {
       const [filesRes, reportRes] = await Promise.all([
-        axios.get(`${API_BASE}/experiments/${exp.id}/files`, { headers: authHeaders }),
-        axios.get(`${API_BASE}/experiments/${exp.id}/report`, { headers: authHeaders }),
+      api.get(`/experiments/${exp.id}/files`),
+      api.get(`/experiments/${exp.id}/report`),
       ]);
       setFiles(filesRes.data);
       setReportDetails(reportRes.data); // can be null
@@ -246,11 +231,7 @@ const AdminExperiments = () => {
     setEditLoading(true);
 
     try {
-      await axios.put(
-        `${API_BASE}/admin/experiments/${editForm.id}`,
-        { title: editForm.title, description: editForm.description },
-        { headers: authHeaders }
-      );
+    await api.put(`/admin/experiments/${editForm.id}`, {title: editForm.title,description: editForm.description,});
       setSuccess("Experiment updated");
       setShowEditModal(false);
       fetchExperiments();
@@ -275,7 +256,7 @@ const AdminExperiments = () => {
     setSuccess("");
 
     try {
-      await axios.delete(`${API_BASE}/admin/experiments/${id}`, { headers: authHeaders });
+    await api.delete(`/admin/experiments/${id}`);
       setSuccess("Experiment deleted");
       // if this experiment is open in viewer, close it
       setSelectedExp((prev) => (prev && prev.id === id ? null : prev));
@@ -286,18 +267,15 @@ const AdminExperiments = () => {
     }
   };
 
+  // ===== DOWNLOAD URL (correct way) =====
+const getDownloadUrl = (file) =>
+  `${API_BASE}/uploads/experiments/${file.experiment_id}/${file.stored_name}`;
+
   // ---------------------------------------------------
 
   return (
     <AdminLayout>
-      <div
-        style={{
-          padding: 24,
-          background: "#f3f4f6",
-          minHeight: "100vh",
-          boxSizing: "border-box",
-        }}
-      >
+      <div style={{padding: 24,background: "#f3f4f6",minHeight: "100vh",boxSizing: "border-box",}}>
         {/* Page header */}
         <div style={{ marginBottom: 20 }}>
           <h2 style={{ margin: 0, fontSize: 22, fontWeight: 600, color: "#111827" }}>
@@ -310,32 +288,12 @@ const AdminExperiments = () => {
 
         {/* Messages */}
         {error && (
-          <div
-            style={{
-              marginBottom: 12,
-              padding: 10,
-              borderRadius: 6,
-              background: "#fee2e2",
-              color: "#991b1b",
-              fontSize: 13,
-              border: "1px solid #fecaca",
-            }}
-          >
+          <div style={{marginBottom: 12,padding: 10,borderRadius: 6,background: "#fee2e2",color: "#991b1b",fontSize: 13,border: "1px solid #fecaca",}}>
             {error}
           </div>
         )}
         {success && (
-          <div
-            style={{
-              marginBottom: 12,
-              padding: 10,
-              borderRadius: 6,
-              background: "#dcfce7",
-              color: "#166534",
-              fontSize: 13,
-              border: "1px solid #bbf7d0",
-            }}
-          >
+          <div style={{marginBottom: 12,padding: 10,borderRadius: 6,background: "#dcfce7",color: "#166534",fontSize: 13,border: "1px solid #bbf7d0",}}>
             {success}
           </div>
         )}
@@ -343,43 +301,12 @@ const AdminExperiments = () => {
         {/* Form + experiments list, now vertical (table below form) */}
         <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
           {/* Create / Assign Form */}
-          <div
-            style={{
-              padding: 18,
-              borderRadius: 12,
-              border: "1px solid #e5e7eb",
-              background: "#ffffff",
-              boxShadow: "0 1px 2px rgba(15, 23, 42, 0.04)",
-            }}
-          >
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                marginBottom: 10,
-              }}
-            >
-              <h3
-                style={{
-                  margin: 0,
-                  fontSize: 16,
-                  fontWeight: 600,
-                  color: "#111827",
-                }}
-              >
+          <div style={{padding: 18,borderRadius: 12,border: "1px solid #e5e7eb",background: "#ffffff",boxShadow: "0 1px 2px rgba(15, 23, 42, 0.04)",}}>
+            <div style={{display: "flex",justifyContent: "space-between",alignItems: "center",marginBottom: 10,}}>
+              <h3 style={{margin: 0,fontSize: 16,fontWeight: 600,color: "#111827",}}>
                 Create &amp; Assign Experiment
               </h3>
-              <span
-                style={{
-                  fontSize: 11,
-                  color: "#6b7280",
-                  background: "#f9fafb",
-                  padding: "2px 8px",
-                  borderRadius: 999,
-                  border: "1px solid #e5e7eb",
-                }}
-              >
+              <span style={{fontSize: 11,color: "#6b7280",background: "#f9fafb",padding: "2px 8px",borderRadius: 999,border: "1px solid #e5e7eb",}}>
                 Admin action
               </span>
             </div>
@@ -1024,7 +951,7 @@ const AdminExperiments = () => {
                     </thead>
                     <tbody>
                       {files.map((file, index) => {
-                        const downloadUrl = `${API_BASE}/uploads/experiments/${file.experiment_id}/${file.stored_name}`;
+                        const downloadUrl = getDownloadUrl(file);
                         const ext = (file.original_name.split(".").pop() || "").toLowerCase();
                         const canInlinePreview = [
                           "pdf",
@@ -1132,7 +1059,7 @@ const AdminExperiments = () => {
                                 color: "#4b5563",
                               }}
                             >
-                              {index === 0 && reportDetails && (
+                              {reportDetails && (
                                 <div style={{ display: "flex", gap: 6 }}>
                                   <button
                                     type="button"

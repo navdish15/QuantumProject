@@ -22,7 +22,7 @@ const Settings = () => {
     avatar_url: "",
     prefs: {},
   });
-  const [, setLoading] = useState(false);
+const [loading, setLoading] = useState(false);
   const [pw, setPw] = useState({ current: "", new: "", confirm: "" });
   const [notifPrefs, setNotifPrefs] = useState({ email: true, onsite: true });
 
@@ -127,7 +127,11 @@ const Settings = () => {
 
       // backend sends `url` (full) and `path` (relative) — prefer full url
       const fullUrl =
-        data.url || (data.path ? `${API_BASE}${data.path}` : null);
+  data.url ||
+  (data.path
+    ? `${API_BASE}/${data.path.replace(/^\/+/, "")}`
+    : null);
+
 
       setProfile((p) => ({
         ...p,
@@ -158,14 +162,14 @@ const Settings = () => {
   };
 
   // image source: prefer avatar_url (full), then avatar (relative/absolute), then MOCKUP_AVATAR
-  const avatarSrc =
-    profile.avatar_url ||
-    (profile.avatar
-      ? profile.avatar.startsWith("http")
-        ? profile.avatar
-        : `${API_BASE}${profile.avatar}`
-      : MOCKUP_AVATAR) ||
-    MOCKUP_AVATAR;
+const avatarSrc =
+  profile.avatar_url ||
+  (profile.avatar
+    ? profile.avatar.startsWith("http")
+      ? profile.avatar
+      : `${API_BASE}/${profile.avatar.replace(/^\/+/, "")}`
+    : MOCKUP_AVATAR);
+
 
   return (
     <AdminLayout>
