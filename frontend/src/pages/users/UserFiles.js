@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import api from "../../api";
 import { useNavigate } from "react-router-dom";
-const API_BASE = process.env.REACT_APP_API_URL;
+
 
 const UserFiles = () => {
   const [files, setFiles] = useState([]);
