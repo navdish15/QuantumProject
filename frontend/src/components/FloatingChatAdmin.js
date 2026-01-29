@@ -9,13 +9,13 @@ const FloatingChatAdmin = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [users, setUsers] = useState([]);
   const [selectedUserId, setSelectedUserId] = useState(null);
-  // const [selectedUserName, setSelectedUserName] = useState("");
+  const [selectedUserName, setSelectedUserName] = useState("");
 
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState("");
 
-  // const [loadingMessages, setLoadingMessages] = useState(false);
-  // const [loadingUsers, setLoadingUsers] = useState(false);
+  const [loadingMessages, setLoadingMessages] = useState(false);
+  const [loadingUsers, setLoadingUsers] = useState(false);
   const [sending, setSending] = useState(false);
 
   const [unreadCount, setUnreadCount] = useState(0);

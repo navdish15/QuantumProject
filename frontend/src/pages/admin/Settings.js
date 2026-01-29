@@ -22,7 +22,7 @@ const Settings = () => {
     avatar_url: "",
     prefs: {},
   });
-// const [loading, setLoading] = useState(false);
+const [loading, setLoading] = useState(false);
   const [pw, setPw] = useState({ current: "", new: "", confirm: "" });
   const [notifPrefs, setNotifPrefs] = useState({ email: true, onsite: true });
 
