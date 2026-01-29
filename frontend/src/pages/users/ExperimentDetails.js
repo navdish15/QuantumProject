@@ -52,9 +52,15 @@ const fetchExperiment = async () => {
   }
 };
 
+// useEffect(() => {
+//   fetchExperiment();
+// }, [fetchExperiment]);
 useEffect(() => {
-  fetchExperiment();
-}, [fetchExperiment]);
+  const load = async () => {
+    await fetchExperiment();
+  };
+  load();
+}, [id]);
 
 
     // auto hide success
