@@ -24,16 +24,16 @@ const ExperimentDetails = () => {
   const [reportSuccess, setReportSuccess] = useState("");
   const [reportError, setReportError] = useState("");
 
-const fetchFiles = useCallback(async () => {
+const fetchFiles = async () => {
   try {
     const res = await api.get(`/experiments/${id}/files`);
     setFiles(res.data);
   } catch (err) {
     console.error("Files load error:", err.response?.data || err);
   }
-}, [id]);
+};
 
-const fetchExperiment = useCallback(async () => {
+const fetchExperiment = async () => {
   setError("");
   setSuccess("");
   setFileError("");
@@ -50,12 +50,11 @@ const fetchExperiment = useCallback(async () => {
   } finally {
     setLoading(false);
   }
-}, [id, fetchFiles]);
+};
 
 useEffect(() => {
   fetchExperiment();
-}, [fetchExperiment]);
-
+}, [id]);
 
     // auto hide success
     useEffect(() => {
