@@ -54,7 +54,7 @@ const fetchExperiment = async () => {
 
 useEffect(() => {
   fetchExperiment();
-}, [id]);
+}, [fetchExperiment]);
 
 
     // auto hide success
