@@ -55,7 +55,7 @@ const ExperimentDetails = () => {
 
   useEffect(() => {
     fetchExperiment();
-  }, [id]);
+  }, [id,fetchExperiment]);
 
   // auto hide success
   useEffect(() => {
