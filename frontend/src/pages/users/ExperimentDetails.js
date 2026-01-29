@@ -1,5 +1,4 @@
-// src/pages/users/ExperimentDetails.js
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import api from "../../api";
 
@@ -8,148 +7,110 @@ const ExperimentDetails = () => {
   const navigate = useNavigate();
 
   const [experiment, setExperiment] = useState(null);
+  const [files, setFiles] = useState([]);
+
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
 
-  const [files, setFiles] = useState([]);
   const [fileError, setFileError] = useState("");
   const [uploading, setUploading] = useState(false);
   const [deletingFileId, setDeletingFileId] = useState(null);
 
   const [showReportForm, setShowReportForm] = useState(false);
-  const [report, setReport] = useState({ tools_used: "", procedure_text: "", result: "" });
+  const [report, setReport] = useState({
+    tools_used: "",
+    procedure_text: "",
+    result: "",
+  });
   const [reportLoading, setReportLoading] = useState(false);
   const [reportSuccess, setReportSuccess] = useState("");
   const [reportError, setReportError] = useState("");
 
-const fetchFiles = async () => {
-  try {
-    const res = await api.get(`/experiments/${id}/files`);
-    setFiles(res.data);
-  } catch (err) {
-    console.error("Files load error:", err.response?.data || err);
-  }
-};
+  // 🔥 THE ONLY EFFECT YOU NEED
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        setLoading(true);
+        setError("");
+        setSuccess("");
+        setFileError("");
 
-const fetchExperiment = async () => {
-  setError("");
-  setSuccess("");
-  setFileError("");
-  setLoading(true);
+        const expRes = await api.get(`/user/experiments/${id}`);
+        setExperiment(expRes.data);
 
-  try {
-    const res = await api.get(`/user/experiments/${id}`);
-    setExperiment(res.data);
-    await fetchFiles();
-  } catch (err) {
-    console.error("Experiment details error:", err.response?.data || err);
-    setError(err.response?.data?.message || "Failed to load experiment");
-    setExperiment(null);
-  } finally {
-    setLoading(false);
-  }
-};
+        const fileRes = await api.get(`/experiments/${id}/files`);
+        setFiles(fileRes.data);
+      } catch (err) {
+        console.error(err);
+        setError("Failed to load experiment");
+        setExperiment(null);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-useEffect(() => {
-  const load = async () => {
-    await fetchExperiment();
+    loadData();
+  }, [id]);
+
+  // auto hide success
+  useEffect(() => {
+    if (!success) return;
+    const t = setTimeout(() => setSuccess(""), 3000);
+    return () => clearTimeout(t);
+  }, [success]);
+
+  const refreshFiles = async () => {
+    const fileRes = await api.get(`/experiments/${id}/files`);
+    setFiles(fileRes.data);
   };
-  load();
-}, [id]);
 
-    // auto hide success
-    useEffect(() => {
-      if (!success) return;
-      const t = setTimeout(() => setSuccess(""), 3000);
-      return () => clearTimeout(t);
-    }, [success]);
-
-    const getStatusStyles = (status) => {
-      const base = { display: "inline-flex", alignItems: "center", justifyContent: "center", padding: "2px 8px", borderRadius: 999, fontSize: 12, textTransform: "capitalize" };
-
-      switch (status) {
-        case "pending":
-          return { ...base, background: "#fef3c7", color: "#92400e" };
-        case "active":
-          return { ...base, background: "#dbeafe", color: "#1d4ed8" };
-        case "done":
-          return { ...base, background: "#dcfce7", color: "#166534" };
-        case "approved":
-          return { ...base, background: "#e0f2fe", color: "#0369a1" };
-        default:
-          return { ...base, background: "#e5e7eb", color: "#374151" };
-      }
-    };
-
-    const handleMarkDone = async () => {
-      setError("");
-      setSuccess("");
+  const handleMarkDone = async () => {
+    try {
       setUpdating(true);
-      try {
-        await api.put(`/user/experiments/${id}/status`, { status: "done" });
-        setSuccess("Experiment marked as done");
-        setExperiment((prev) => (prev ? { ...prev, status: "done" } : prev));
-      } catch (err) {
-        console.error("Mark done error:", err.response?.data || err);
-        setError(err.response?.data?.message || "Failed to update status");
-      } finally {
-        setUpdating(false);
-      }
-    };
+      await api.put(`/user/experiments/${id}/status`, { status: "done" });
+      setExperiment((p) => ({ ...p, status: "done" }));
+      setSuccess("Experiment marked as done");
+    } catch {
+      setError("Failed to update status");
+    } finally {
+      setUpdating(false);
+    }
+  };
 
-    // upload file (any format, max 50MB)
-    const handleFileUpload = async (e) => {
-      const file = e.target.files[0];
-      if (!file) return;
+  const handleFileUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
 
-      setFileError("");
-      setSuccess("");
+    const formData = new FormData();
+    formData.append("file", file);
 
-      const maxSize = 50 * 1024 * 1024; // 50MB
-      if (file.size > maxSize) {
-        setFileError("File is too large. Max size is 50MB.");
-        e.target.value = "";
-        return;
-      }
-
-      const formData = new FormData();  
-      formData.append("file", file);
-
+    try {
       setUploading(true);
-      try {
-        await api.post(`/experiments/${id}/files`, formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-        });
+      await api.post(`/experiments/${id}/files`, formData);
+      setSuccess("File uploaded");
+      await refreshFiles();
+    } catch {
+      setFileError("Upload failed");
+    } finally {
+      setUploading(false);
+      e.target.value = "";
+    }
+  };
 
-        setSuccess("File uploaded successfully");
-        await fetchFiles();
-      } catch (err) {
-        console.error("File upload error:", err.response?.data || err);
-        setFileError(err.response?.data?.message || "Failed to upload file");
-      } finally {
-        setUploading(false);
-        e.target.value = ""; // reset input
-      }
-    };
-
-    const handleDeleteFile = async (fileId) => {
-      setFileError("");
-      setSuccess("");
+  const handleDeleteFile = async (fileId) => {
+    try {
       setDeletingFileId(fileId);
-
-      try {
-        await api.delete(`/experiments/${id}/files/${fileId}`);
-        setSuccess("File deleted");
-        await fetchFiles();
-      } catch (err) {
-        console.error("File delete error:", err.response?.data || err);
-        setFileError(err.response?.data?.message || "Failed to delete file");
-      } finally {
-        setDeletingFileId(null);
-      }
-    };
+      await api.delete(`/experiments/${id}/files/${fileId}`);
+      setSuccess("File deleted");
+      await refreshFiles();
+    } catch {
+      setFileError("Delete failed");
+    } finally {
+      setDeletingFileId(null);
+    }
+  };
 
     // report form handlers
     const handleReportChange = (e) => {
