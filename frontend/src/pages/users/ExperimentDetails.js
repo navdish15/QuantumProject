@@ -24,34 +24,35 @@ const ExperimentDetails = () => {
   const [reportSuccess, setReportSuccess] = useState("");
   const [reportError, setReportError] = useState("");
 
-  const fetchFiles = async () => {
+  const fetchFiles = useCallback(async () => {
     try {
       const res = await api.get(`/experiments/${id}/files`);
       setFiles(res.data);
     } catch (err) {
-      console.error("Files load error:", err.response?.data || err);
+      console.error(err);
     }
-  };
+  }, [id]);
+
 
   // ✅ FIXED WITH useCallback
   const fetchExperiment = useCallback(async () => {
-    setError("");
-    setSuccess("");
-    setFileError("");
-    setLoading(true);
+  setError("");
+  setSuccess("");
+  setFileError("");
+  setLoading(true);
 
-    try {
-      const res = await api.get(`/user/experiments/${id}`);
-      setExperiment(res.data);
-      await fetchFiles();
-    } catch (err) {
-      console.error("Experiment details error:", err.response?.data || err);
-      setError(err.response?.data?.message || "Failed to load experiment");
-      setExperiment(null);
-    } finally {
-      setLoading(false);
-    }
-  }, [id]);
+  try {
+    const res = await api.get(`/user/experiments/${id}`);
+    setExperiment(res.data);
+    await fetchFiles();
+  } catch (err) {
+    console.error("Experiment details error:", err.response?.data || err);
+    setError(err.response?.data?.message || "Failed to load experiment");
+    setExperiment(null);
+  } finally {
+    setLoading(false);
+  }
+}, [id, fetchFiles]);
 
   // ✅ Correct dependency
   useEffect(() => {
