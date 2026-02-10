@@ -8,10 +8,14 @@ const app = express();
 // GLOBAL MIDDLEWARES
 app.use(
   cors({
-    origin: ['https://quantum-neuton.vercel.app'], // your Vercel URL
+    origin: [
+      'https://quantum-project-blush.vercel.app',
+      /\.vercel\.app$/, // allow all Vercel previews
+    ],
     credentials: true,
   })
 );
+
 app.use(express.json());
 
 // STATIC UPLOADS FOLDER
