@@ -9,20 +9,19 @@ const fs = require('fs');
 
 const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50 MB
 
-// Ensure directory exists
-const ensureDirSync = (dir) => {
-  if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir, { recursive: true });
-  }
-};
+const uploadsRoot = path.join(__dirname, '..', 'uploads');
+const experimentsRoot = path.join(uploadsRoot, 'experiments');
 
-// Multer storage: uploads/experiments/<experimentId>/<filename>
+fs.mkdirSync(experimentsRoot, { recursive: true });
+
+/* ------------------------------------------------------------------
+   MULTER STORAGE
+-------------------------------------------------------------------*/
 const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    const expId = req.params.id;
-    const uploadPath = path.join(__dirname, '..', 'uploads', 'experiments', String(expId));
-    ensureDirSync(uploadPath);
-    cb(null, uploadPath);
+  destination: function (req, file, cb) {
+    const expDir = path.join(experimentsRoot, String(req.params.id));
+    fs.mkdirSync(expDir, { recursive: true });
+    cb(null, expDir);
   },
   filename: (req, file, cb) => {
     const timestamp = Date.now();
@@ -36,166 +35,100 @@ const upload = multer({
   limits: { fileSize: MAX_FILE_SIZE },
 });
 
-// Check: only admin OR assigned user can access a given experiment's files
+/* ------------------------------------------------------------------
+   PERMISSION CHECK
+-------------------------------------------------------------------*/
 const checkPermission = (req, res, next) => {
   const expId = req.params.id;
   const userId = req.user?.id;
   const role = req.user?.role;
 
-  const sql = 'SELECT assigned_to FROM experiments WHERE id = ?';
-  db.query(sql, [expId], (err, rows) => {
+  db.query('SELECT assigned_to FROM experiments WHERE id=?', [expId], (err, rows) => {
     if (err) return res.status(500).json({ message: 'DB Error', err });
-    if (!rows || rows.length === 0) {
-      return res.status(404).json({ message: 'Experiment not found' });
-    }
+    if (!rows.length) return res.status(404).json({ message: 'Experiment not found' });
 
-    const assignedTo = rows[0].assigned_to;
-
-    if (role === 'admin' || assignedTo === userId) {
-      return next();
-    }
-
+    if (role === 'admin' || rows[0].assigned_to === userId) return next();
     return res.status(403).json({ message: 'Forbidden' });
   });
 };
 
-/**
- * Extra guard:
- * - If experiment status is 'approved' and user is NOT admin,
- *   block any modifying action (upload/delete files, save report).
- */
+/* ------------------------------------------------------------------
+   BLOCK MODIFICATION IF APPROVED
+-------------------------------------------------------------------*/
 const checkNotApprovedForUser = (req, res, next) => {
-  const expId = req.params.id;
-  const role = req.user?.role;
+  if (req.user.role === 'admin') return next();
 
-  // Admin can always modify
-  if (role === 'admin') return next();
-
-  const sql = 'SELECT status FROM experiments WHERE id = ?';
-  db.query(sql, [expId], (err, rows) => {
+  db.query('SELECT status FROM experiments WHERE id=?', [req.params.id], (err, rows) => {
     if (err) return res.status(500).json({ message: 'DB Error', err });
-    if (!rows || rows.length === 0) {
-      return res.status(404).json({ message: 'Experiment not found' });
-    }
+    if (!rows.length) return res.status(404).json({ message: 'Experiment not found' });
 
-    const status = rows[0].status;
-    if (status === 'approved') {
+    if (rows[0].status === 'approved') {
       return res.status(403).json({
-        message: 'This experiment has been approved. You can no longer modify files or the report.',
+        message: 'This experiment has been approved. No more changes allowed.',
       });
     }
-
-    return next();
+    next();
   });
 };
 
-// ---------------------------------------------------------
-// POST /experiments/:id/files  → upload report/file
-// field name: "file"
-// ---------------------------------------------------------
+/* ------------------------------------------------------------------
+   UPLOAD FILE
+-------------------------------------------------------------------*/
 router.post('/:id/files', checkPermission, checkNotApprovedForUser, (req, res) => {
   upload.single('file')(req, res, (err) => {
-    if (err) {
-      if (err.code === 'LIMIT_FILE_SIZE') {
-        return res.status(400).json({
-          message: 'File is too large. Max size is 50MB.',
+    if (err) return res.status(400).json({ message: err.message });
+
+    const { originalname, filename, mimetype, size } = req.file;
+    const expId = req.params.id;
+
+    db.query(
+      `INSERT INTO experiment_files 
+      (experiment_id, original_name, stored_name, mime_type, size, uploaded_by)
+      VALUES (?, ?, ?, ?, ?, ?)`,
+      [expId, originalname, filename, mimetype, size, req.user.id],
+      (dbErr, result) => {
+        if (dbErr) return res.status(500).json({ message: 'DB Error', err: dbErr });
+
+        res.json({
+          message: 'File uploaded',
+          file: {
+            id: result.insertId,
+            original_name: originalname,
+            stored_name: filename,
+          },
         });
       }
-      console.error('Multer error:', err);
-      return res.status(400).json({ message: 'File upload error', err });
-    }
-
-    if (!req.file) {
-      return res.status(400).json({ message: 'No file uploaded' });
-    }
-
-    const expId = req.params.id;
-    const { originalname, filename, mimetype, size } = req.file;
-    const userId = req.user?.id || null;
-
-    const sql = `
-        INSERT INTO experiment_files 
-        (experiment_id, original_name, stored_name, mime_type, size, uploaded_by)
-        VALUES (?, ?, ?, ?, ?, ?)
-      `;
-
-    db.query(sql, [expId, originalname, filename, mimetype, size, userId], (dbErr, result) => {
-      if (dbErr) {
-        console.error('DB error on file insert:', dbErr);
-        return res.status(500).json({ message: 'DB Error', err: dbErr });
-      }
-
-      return res.json({
-        message: 'File uploaded successfully',
-        file: {
-          id: result.insertId,
-          experiment_id: expId,
-          original_name: originalname,
-          stored_name: filename,
-          mime_type: mimetype,
-          size,
-        },
-      });
-    });
+    );
   });
 });
 
-// ---------------------------------------------------------
-// GET /experiments/:id/files  → list files for an experiment
-// ---------------------------------------------------------
+/* ------------------------------------------------------------------
+   LIST FILES
+-------------------------------------------------------------------*/
 router.get('/:id/files', checkPermission, (req, res) => {
-  const expId = req.params.id;
-
-  const sql = `
-    SELECT 
-      ef.id,
-      ef.experiment_id,
-      ef.original_name,
-      ef.stored_name,
-      ef.mime_type,
-      ef.size,
-      ef.uploaded_at,
-      u.name AS uploaded_by_name
-    FROM experiment_files ef
-    LEFT JOIN users u ON ef.uploaded_by = u.id
-    WHERE ef.experiment_id = ?
-    ORDER BY ef.uploaded_at DESC
-  `;
-
-  db.query(sql, [expId], (err, rows) => {
-    if (err) return res.status(500).json({ message: 'DB Error', err });
-    return res.json(rows);
-  });
+  db.query(
+    `SELECT id, experiment_id, original_name, stored_name, size, uploaded_at
+     FROM experiment_files WHERE experiment_id=? ORDER BY uploaded_at DESC`,
+    [req.params.id],
+    (err, rows) => {
+      if (err) return res.status(500).json({ message: 'DB Error', err });
+      res.json(rows);
+    }
+  );
 });
 
-// ---------------------------------------------------------
-// DELETE /experiments/:id/files/:fileId → delete a file
-// ---------------------------------------------------------
+/* ------------------------------------------------------------------
+   DELETE FILE
+-------------------------------------------------------------------*/
 router.delete('/:id/files/:fileId', checkPermission, checkNotApprovedForUser, (req, res) => {
-  const expId = req.params.id;
-  const fileId = req.params.fileId;
+  db.query('SELECT stored_name FROM experiment_files WHERE id=? AND experiment_id=?', [req.params.fileId, req.params.id], (err, rows) => {
+    if (!rows.length) return res.status(404).json({ message: 'File not found' });
 
-  const sqlSelect = 'SELECT stored_name FROM experiment_files WHERE id = ? AND experiment_id = ?';
+    const filePath = path.join(experimentsRoot, String(req.params.id), rows[0].stored_name);
+    fs.unlink(filePath, () => {});
 
-  db.query(sqlSelect, [fileId, expId], (err, rows) => {
-    if (err) return res.status(500).json({ message: 'DB Error', err });
-    if (!rows || rows.length === 0) {
-      return res.status(404).json({ message: 'File not found' });
-    }
-
-    const storedName = rows[0].stored_name;
-    const filePath = path.join(__dirname, '..', 'uploads', 'experiments', String(expId), storedName);
-
-    fs.unlink(filePath, (fsErr) => {
-      if (fsErr && fsErr.code !== 'ENOENT') {
-        console.error('File delete error:', fsErr);
-      }
-
-      db.query('DELETE FROM experiment_files WHERE id = ?', [fileId], (delErr) => {
-        if (delErr) return res.status(500).json({ message: 'DB Error', err: delErr });
-        return res.json({ message: 'File deleted' });
-      });
-    });
+    db.query('DELETE FROM experiment_files WHERE id=?', [req.params.fileId]);
+    res.json({ message: 'File deleted' });
   });
 });
 

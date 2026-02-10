@@ -2,10 +2,11 @@
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
+const fs = require('fs');
 
 const app = express();
 
-// ✅ SIMPLE CORS (works for all Vercel + no crash)
+/* -------------------- CORS -------------------- */
 app.use(
   cors({
     origin: true,
@@ -15,28 +16,42 @@ app.use(
 
 app.use(express.json());
 
-// STATIC UPLOADS
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+/* -------------------- UPLOADS SETUP -------------------- */
+// Absolute uploads path
+const uploadsPath = path.join(__dirname, 'uploads');
+const experimentsPath = path.join(uploadsPath, 'experiments');
+const avatarsPath = path.join(uploadsPath, 'avatars');
 
-// AUTH MIDDLEWARE
+// Ensure folders exist every time server starts (VERY IMPORTANT for Render)
+fs.mkdirSync(experimentsPath, { recursive: true });
+fs.mkdirSync(avatarsPath, { recursive: true });
+
+console.log('Uploads folders ensured at:', uploadsPath);
+
+// Serve static files
+app.use('/uploads', express.static(uploadsPath));
+
+/* -------------------- AUTH MIDDLEWARE -------------------- */
 const { authenticateToken } = require('./middleware/authMiddleware');
 
-// ROUTES
+/* -------------------- ROUTES -------------------- */
 app.use('/auth', require('./routes/auth'));
+
 app.use('/admin', authenticateToken, require('./routes/admin'));
 app.use('/admin', authenticateToken, require('./routes/settings'));
 app.use('/admin/logs', authenticateToken, require('./routes/logs'));
 app.use('/admin/logs/export', authenticateToken, require('./routes/logsExport'));
+
 app.use('/user', authenticateToken, require('./routes/user'));
 app.use('/experiments', authenticateToken, require('./routes/experimentFiles'));
 app.use('/messages', authenticateToken, require('./routes/messages'));
 
-// TEST ROUTE
+/* -------------------- TEST ROUTE -------------------- */
 app.get('/', (req, res) => {
   res.send('Quantum Backend Running 🚀');
 });
 
-// START SERVER
+/* -------------------- START SERVER -------------------- */
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
