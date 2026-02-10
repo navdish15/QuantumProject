@@ -3,7 +3,6 @@ import React, { useEffect, useState } from "react";
 import api from "../../api";
 import { useNavigate } from "react-router-dom";
 
-
 const UserFiles = () => {
   const [files, setFiles] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -12,7 +11,7 @@ const UserFiles = () => {
 
   const navigate = useNavigate();
 
-useEffect(() => {
+  useEffect(() => {
     const fetchFiles = async () => {
       try {
         setError("");
@@ -31,7 +30,7 @@ useEffect(() => {
   }, []);
 
   const handleDownload = (file) => {
-const url = `${process.env.REACT_APP_API_URL}/uploads/experiments/${file.experiment_id}/${file.stored_name}`;
+    const url = `${process.env.REACT_APP_API_URL}/uploads/experiments/${file.experiment_id}/${file.stored_name}`;
 
     window.open(url, "_blank");
   };
@@ -128,20 +127,23 @@ const url = `${process.env.REACT_APP_API_URL}/uploads/experiments/${file.experim
           </div>
         )}
 
-        {!loading && !error && filteredFiles.length === 0 && files.length > 0 && (
-          <div
-            style={{
-              padding: 24,
-              background: "#fff",
-              borderRadius: 8,
-              border: "1px solid #e2e8f0",
-              textAlign: "center",
-              color: "#64748b",
-            }}
-          >
-            No files match your search.
-          </div>
-        )}
+        {!loading &&
+          !error &&
+          filteredFiles.length === 0 &&
+          files.length > 0 && (
+            <div
+              style={{
+                padding: 24,
+                background: "#fff",
+                borderRadius: 8,
+                border: "1px solid #e2e8f0",
+                textAlign: "center",
+                color: "#64748b",
+              }}
+            >
+              No files match your search.
+            </div>
+          )}
 
         {!loading && !error && files.length === 0 && (
           <div

@@ -24,4 +24,4 @@ const ProtectedRoute = ({ children, role }) => {
   return children;
 };
 
-export default ProtectedRoute;   // ✅ VERY IMPORTANT
+export default ProtectedRoute; // ✅ VERY IMPORTANT

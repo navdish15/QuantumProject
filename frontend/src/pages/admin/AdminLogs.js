@@ -65,9 +65,8 @@ const AdminLogs = () => {
   }, [loadLogs]);
 
   const applyFilters = () => {
-  setPage(1);
-};
-
+    setPage(1);
+  };
 
   return (
     <AdminLayout>
@@ -96,7 +95,9 @@ const AdminLogs = () => {
             <option value="user.create">user.create</option>
             <option value="user.status.update">user.status.update</option>
             <option value="experiment.create">experiment.create</option>
-            <option value="experiment.status.update">experiment.status.update</option>
+            <option value="experiment.status.update">
+              experiment.status.update
+            </option>
             <option value="notification.create">notification.create</option>
           </select>
 
@@ -155,29 +156,28 @@ const AdminLogs = () => {
           {/* CSV EXPORT BUTTON */}
           <button
             onClick={async () => {
-  try {
-    const res = await api.get("/admin/logs/export", {
-      params: {
-        event: event || undefined,
-        severity: severity || undefined,
-        user_id: userId || undefined,
-        q: search || undefined,
-      },
-      responseType: "blob",
-    });
+              try {
+                const res = await api.get("/admin/logs/export", {
+                  params: {
+                    event: event || undefined,
+                    severity: severity || undefined,
+                    user_id: userId || undefined,
+                    q: search || undefined,
+                  },
+                  responseType: "blob",
+                });
 
-    const blob = new Blob([res.data], { type: "text/csv" });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "logs.csv";
-    a.click();
-    window.URL.revokeObjectURL(url);
-  } catch (err) {
-    console.error("Export failed", err);
-  }
-}}
-
+                const blob = new Blob([res.data], { type: "text/csv" });
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement("a");
+                a.href = url;
+                a.download = "logs.csv";
+                a.click();
+                window.URL.revokeObjectURL(url);
+              } catch (err) {
+                console.error("Export failed", err);
+              }
+            }}
             style={{
               padding: "8px 15px",
               background: "#10b981",
@@ -196,7 +196,10 @@ const AdminLogs = () => {
           <p>Loading logs...</p>
         ) : (
           <div style={{ overflowX: "auto" }}>
-            <table className="table table-bordered" style={{ background: "#fff" }}>
+            <table
+              className="table table-bordered"
+              style={{ background: "#fff" }}
+            >
               <thead>
                 <tr>
                   <th>ID</th>
@@ -213,7 +216,10 @@ const AdminLogs = () => {
               <tbody>
                 {logs.length === 0 ? (
                   <tr>
-                    <td colSpan="8" style={{ textAlign: "center", padding: 20 }}>
+                    <td
+                      colSpan="8"
+                      style={{ textAlign: "center", padding: 20 }}
+                    >
                       No Logs Found
                     </td>
                   </tr>
@@ -225,7 +231,9 @@ const AdminLogs = () => {
                       <td>{log.user_name || "SYSTEM"}</td>
                       <td>{log.role || "-"}</td>
                       <td>{log.event}</td>
-                      <td>{log.resource_type}/{log.resource_id}</td>
+                      <td>
+                        {log.resource_type}/{log.resource_id}
+                      </td>
                       <td>{log.severity}</td>
                       <td>
                         <button
@@ -300,13 +308,29 @@ const AdminLogs = () => {
             <h4>Log Details</h4>
             <hr />
 
-            <p><strong>ID:</strong> {selectedLog.id}</p>
-            <p><strong>Time:</strong> {new Date(selectedLog.created_at).toLocaleString()}</p>
-            <p><strong>User:</strong> {selectedLog.user_name || "SYSTEM"}</p>
-            <p><strong>Role:</strong> {selectedLog.role || "-"}</p>
-            <p><strong>Event:</strong> {selectedLog.event}</p>
-            <p><strong>Resource:</strong> {selectedLog.resource_type}/{selectedLog.resource_id}</p>
-            <p><strong>Severity:</strong> {selectedLog.severity}</p>
+            <p>
+              <strong>ID:</strong> {selectedLog.id}
+            </p>
+            <p>
+              <strong>Time:</strong>{" "}
+              {new Date(selectedLog.created_at).toLocaleString()}
+            </p>
+            <p>
+              <strong>User:</strong> {selectedLog.user_name || "SYSTEM"}
+            </p>
+            <p>
+              <strong>Role:</strong> {selectedLog.role || "-"}
+            </p>
+            <p>
+              <strong>Event:</strong> {selectedLog.event}
+            </p>
+            <p>
+              <strong>Resource:</strong> {selectedLog.resource_type}/
+              {selectedLog.resource_id}
+            </p>
+            <p>
+              <strong>Severity:</strong> {selectedLog.severity}
+            </p>
 
             <strong>Details:</strong>
             <pre

@@ -26,8 +26,8 @@ const AdminUsers = () => {
 
     try {
       await api.put(`/admin/users/${id}/status`, {
-  status: newStatus,
-});
+        status: newStatus,
+      });
 
       await loadUsers(); // refresh user list
     } catch (err) {
@@ -78,7 +78,10 @@ const AdminUsers = () => {
             <tbody>
               {users.length === 0 ? (
                 <tr>
-                  <td colSpan="7" style={{ textAlign: "center", padding: "20px" }}>
+                  <td
+                    colSpan="7"
+                    style={{ textAlign: "center", padding: "20px" }}
+                  >
                     No Users Found
                   </td>
                 </tr>
@@ -96,7 +99,9 @@ const AdminUsers = () => {
                       {/* Toggle status button */}
                       <button
                         className={`btn ${
-                          user.status === "active" ? "btn-danger" : "btn-success"
+                          user.status === "active"
+                            ? "btn-danger"
+                            : "btn-success"
                         } btn-sm`}
                         onClick={() => toggleStatus(user.id, user.status)}
                       >

@@ -31,8 +31,8 @@ const FloatingChatAdmin = () => {
       const list = Array.isArray(res.data)
         ? res.data
         : Array.isArray(res.data?.users)
-        ? res.data.users
-        : [];
+          ? res.data.users
+          : [];
 
       const filtered = list.filter((u) => u.role !== "admin");
       setUsers(filtered);
@@ -61,9 +61,7 @@ const FloatingChatAdmin = () => {
     if (!selectedUserId) return;
     try {
       setLoadingMessages(true);
-      const res = await api.get(
-        `/messages/conversation/${selectedUserId}`
-      );
+      const res = await api.get(`/messages/conversation/${selectedUserId}`);
       setMessages(Array.isArray(res.data) ? res.data : []);
     } catch (err) {
       console.error(err);
@@ -90,9 +88,7 @@ const FloatingChatAdmin = () => {
   const markConversationRead = useCallback(async () => {
     if (!selectedUserId) return;
     try {
-      await api.put(
-        `/messages/conversation/${selectedUserId}/mark-read`
-      );
+      await api.put(`/messages/conversation/${selectedUserId}/mark-read`);
       loadUnreadCount();
     } catch {}
   }, [selectedUserId, loadUnreadCount]);
@@ -155,8 +151,7 @@ const FloatingChatAdmin = () => {
     }
   };
 
-  const badgeText =
-    unreadCount > 9 ? "9+" : unreadCount > 0 ? unreadCount : "";
+  const badgeText = unreadCount > 9 ? "9+" : unreadCount > 0 ? unreadCount : "";
 
   return (
     <>
@@ -193,9 +188,7 @@ const FloatingChatAdmin = () => {
           <div style={{ padding: 8, borderBottom: "1px solid #eee" }}>
             <select
               value={selectedUserId || ""}
-              onChange={(e) =>
-                setSelectedUserId(Number(e.target.value))
-              }
+              onChange={(e) => setSelectedUserId(Number(e.target.value))}
               style={{ width: "100%" }}
             >
               {users.map((u) => (
@@ -231,9 +224,7 @@ const FloatingChatAdmin = () => {
                       display: "inline-block",
                       padding: "6px 8px",
                       borderRadius: 8,
-                      background: isAdmin
-                        ? "#0f172a"
-                        : "#e5f2ff",
+                      background: isAdmin ? "#0f172a" : "#e5f2ff",
                       color: isAdmin ? "#fff" : "#000",
                       fontSize: 13,
                       maxWidth: "70%",
@@ -253,9 +244,7 @@ const FloatingChatAdmin = () => {
           >
             <input
               value={newMessage}
-              onChange={(e) =>
-                setNewMessage(e.target.value)
-              }
+              onChange={(e) => setNewMessage(e.target.value)}
               style={{ flex: 1 }}
             />
             <button type="submit" disabled={sending}>

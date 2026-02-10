@@ -6,13 +6,27 @@ import UserSidebar from "../../components/UserSidebar";
 
 export default function UserLayout() {
   return (
-    <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", background: "#f8fafc" }}>
+    <div
+      style={{
+        minHeight: "100vh",
+        display: "flex",
+        flexDirection: "column",
+        background: "#f8fafc",
+      }}
+    >
       {/* render navbar once */}
       <UserNavbar />
 
       <div style={{ display: "flex", flex: 1, minHeight: 0 }}>
         {/* Sidebar area (fixed width) */}
-        <div style={{ width: 260, borderRight: "1px solid #eef2ff", background: "#fff", overflow: "auto" }}>
+        <div
+          style={{
+            width: 260,
+            borderRight: "1px solid #eef2ff",
+            background: "#fff",
+            overflow: "auto",
+          }}
+        >
           <UserSidebar />
         </div>
 

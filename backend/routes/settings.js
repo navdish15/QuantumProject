@@ -37,7 +37,7 @@ const avatarUpload = multer({ storage: avatarStorage }).single("avatar");
 // utility: get current user id (fallback to 1 if unauthenticated)
 const getUserId = (req) => {
   // if you add authentication later, use req.user.id
-  return (req.user && req.user.id) ? Number(req.user.id) : 1;
+  return req.user && req.user.id ? Number(req.user.id) : 1;
 };
 
 // Helper: create a public URL from a relative uploads path, if possible.
@@ -96,12 +96,12 @@ router.get("/profile", (req, res) => {
         name: user.name,
         email: user.email,
         role: user.role,
-        avatar: rawAvatar,   // DB value or default path
-        avatar_url,          // best-effort public URL
+        avatar: rawAvatar, // DB value or default path
+        avatar_url, // best-effort public URL
         phone: user.phone,
         prefs: user.prefs,
       });
-    }
+    },
   );
 });
 
@@ -197,9 +197,7 @@ router.put("/change-password", (req, res) => {
           bcrypt.hash(newPassword, saltRounds, (hashErr, hash) => {
             if (hashErr) {
               console.error("Password hash error:", hashErr);
-              return res
-                .status(500)
-                .json({ message: "Hash error", hashErr });
+              return res.status(500).json({ message: "Hash error", hashErr });
             }
 
             db.query(
@@ -209,12 +207,12 @@ router.put("/change-password", (req, res) => {
                 if (uErr) {
                   console.error(
                     "PUT /admin/change-password update error:",
-                    uErr
+                    uErr,
                   );
                   return res.status(500).json({ message: "DB Error", uErr });
                 }
                 res.json({ message: "Password changed" });
-              }
+              },
             );
           });
         })
@@ -222,7 +220,7 @@ router.put("/change-password", (req, res) => {
           console.error("Password compare error:", cmpErr);
           res.status(500).json({ message: "Server error", cmpErr });
         });
-    }
+    },
   );
 });
 
@@ -262,7 +260,7 @@ router.post("/avatar", avatarUpload, (req, res) => {
         url: fullUrl, // full HTTP URL to fetch the image
         file_path: filesystemPath, // server filesystem path (for debugging)
       });
-    }
+    },
   );
 });
 
@@ -283,7 +281,7 @@ router.put("/notifications/prefs", (req, res) => {
         return res.status(500).json({ message: "DB Error", err });
       }
       res.json({ message: "Preferences saved", prefs });
-    }
+    },
   );
 });
 
@@ -297,10 +295,7 @@ router.get("/notifications/prefs", (req, res) => {
     [userId],
     (err, rows) => {
       if (err) {
-        console.error(
-          "GET /admin/notifications/prefs DB error:",
-          err
-        );
+        console.error("GET /admin/notifications/prefs DB error:", err);
         return res.status(500).json({ message: "DB Error", err });
       }
       if (!rows || rows.length === 0) return res.json({});
@@ -310,7 +305,7 @@ router.get("/notifications/prefs", (req, res) => {
       } catch (e) {
         return res.json({});
       }
-    }
+    },
   );
 });
 

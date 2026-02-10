@@ -67,7 +67,8 @@ router.get("/dashboard-stats", authenticateToken, (req, res) => {
     const counts = countResults?.[0] || {};
 
     // Users by role
-    const usersByRoleSql = "SELECT role, COUNT(*) as cnt FROM users GROUP BY role";
+    const usersByRoleSql =
+      "SELECT role, COUNT(*) as cnt FROM users GROUP BY role";
     db.query(usersByRoleSql, (err2, usersRoleRows) => {
       if (err2) return res.status(500).json({ message: "DB Error", err: err2 });
 
@@ -78,7 +79,8 @@ router.get("/dashboard-stats", authenticateToken, (req, res) => {
         GROUP BY status
       `;
       db.query(expStatusSql, (err3, expRows) => {
-        if (err3) return res.status(500).json({ message: "DB Error", err: err3 });
+        if (err3)
+          return res.status(500).json({ message: "DB Error", err: err3 });
 
         return res.json({
           counts,
@@ -131,7 +133,7 @@ router.post("/create-user", authenticateToken, (req, res) => {
       });
 
       res.json({ message: "User created successfully" });
-    }
+    },
   );
 });
 
@@ -240,40 +242,47 @@ router.post("/experiments", authenticateToken, (req, res) => {
     VALUES (?, ?, ?)
   `;
 
-  db.query(query, [title, description || null, assigned_to || null], (err, result) => {
-    if (err) return res.status(500).json({ message: "DB Error", err });
+  db.query(
+    query,
+    [title, description || null, assigned_to || null],
+    (err, result) => {
+      if (err) return res.status(500).json({ message: "DB Error", err });
 
-    const expId = result.insertId;
+      const expId = result.insertId;
 
-    logger.log({
-      user_id: req.user?.id || null,
-      user_name: req.user?.name || req.user?.email || "Admin",
-      role: req.user?.role || "admin",
-      event: "experiment.create",
-      resource_type: "experiment",
-      resource_id: expId,
-      severity: "info",
-      ip: req.ip,
-      user_agent: req.headers["user-agent"],
-      details: { title, assigned_to },
-    });
-
-    // Notify user if experiment was assigned on creation
-    if (assigned_to) {
-      const nTitle = "New Experiment Assigned";
-      const nMessage = `You have been assigned a new experiment: ${title}.`;
-      const nLink = "/user/experiments";
-
-      createNotification(assigned_to, nTitle, nMessage, nLink).catch((e) => {
-        console.error("Failed to create 'assigned' notification (create):", e);
+      logger.log({
+        user_id: req.user?.id || null,
+        user_name: req.user?.name || req.user?.email || "Admin",
+        role: req.user?.role || "admin",
+        event: "experiment.create",
+        resource_type: "experiment",
+        resource_id: expId,
+        severity: "info",
+        ip: req.ip,
+        user_agent: req.headers["user-agent"],
+        details: { title, assigned_to },
       });
-    }
 
-    return res.json({
-      message: "Experiment created successfully",
-      id: expId,
-    });
-  });
+      // Notify user if experiment was assigned on creation
+      if (assigned_to) {
+        const nTitle = "New Experiment Assigned";
+        const nMessage = `You have been assigned a new experiment: ${title}.`;
+        const nLink = "/user/experiments";
+
+        createNotification(assigned_to, nTitle, nMessage, nLink).catch((e) => {
+          console.error(
+            "Failed to create 'assigned' notification (create):",
+            e,
+          );
+        });
+      }
+
+      return res.json({
+        message: "Experiment created successfully",
+        id: expId,
+      });
+    },
+  );
 });
 
 // GET ALL EXPERIMENTS
@@ -310,24 +319,28 @@ router.put("/experiments/:id/status", authenticateToken, (req, res) => {
     return res.status(400).json({ message: "invalid status" });
   }
 
-  db.query("UPDATE experiments SET status = ? WHERE id = ?", [status, id], (err) => {
-    if (err) return res.status(500).json({ message: "DB Error", err });
+  db.query(
+    "UPDATE experiments SET status = ? WHERE id = ?",
+    [status, id],
+    (err) => {
+      if (err) return res.status(500).json({ message: "DB Error", err });
 
-    logger.log({
-      user_id: req.user?.id || null,
-      user_name: req.user?.name || req.user?.email || "Admin",
-      role: req.user?.role || "admin",
-      event: "experiment.status.update",
-      resource_type: "experiment",
-      resource_id: id,
-      severity: "info",
-      ip: req.ip,
-      user_agent: req.headers["user-agent"],
-      details: { status },
-    });
+      logger.log({
+        user_id: req.user?.id || null,
+        user_name: req.user?.name || req.user?.email || "Admin",
+        role: req.user?.role || "admin",
+        event: "experiment.status.update",
+        resource_type: "experiment",
+        resource_id: id,
+        severity: "info",
+        ip: req.ip,
+        user_agent: req.headers["user-agent"],
+        details: { status },
+      });
 
-    return res.json({ message: "Status updated", id, status });
-  });
+      return res.json({ message: "Status updated", id, status });
+    },
+  );
 });
 
 // ASSIGN / REASSIGN EXPERIMENT TO USER
@@ -373,7 +386,10 @@ router.put("/experiments/:id/assign", authenticateToken, (req, res) => {
         const nLink = "/user/experiments";
 
         createNotification(assigned_to, nTitle, nMessage, nLink).catch((e) => {
-          console.error("Failed to create 'assigned' notification (reassign):", e);
+          console.error(
+            "Failed to create 'assigned' notification (reassign):",
+            e,
+          );
         });
       });
     }
@@ -435,7 +451,8 @@ router.delete("/experiments/:id", authenticateToken, (req, res) => {
 
   // delete related files records
   const deleteFilesSql = "DELETE FROM experiment_files WHERE experiment_id = ?";
-  const deleteReportsSql = "DELETE FROM experiment_reports WHERE experiment_id = ?";
+  const deleteReportsSql =
+    "DELETE FROM experiment_reports WHERE experiment_id = ?";
   const deleteExperimentSql = "DELETE FROM experiments WHERE id = ?";
 
   db.query(deleteFilesSql, [id], (err1) => {
@@ -445,7 +462,8 @@ router.delete("/experiments/:id", authenticateToken, (req, res) => {
       if (err2) return res.status(500).json({ message: "DB Error", err: err2 });
 
       db.query(deleteExperimentSql, [id], (err3, result) => {
-        if (err3) return res.status(500).json({ message: "DB Error", err: err3 });
+        if (err3)
+          return res.status(500).json({ message: "DB Error", err: err3 });
 
         if (result.affectedRows === 0) {
           return res.status(404).json({ message: "Experiment not found" });

@@ -2,8 +2,8 @@
 
 .settings-page {
   /* center the whole settings area and allow it to grow */
-  max-width: 1200px;        /* <-- increase to use more horizontal space */
-  margin: 20px auto;        /* center on the page */
+  max-width: 1200px; /* <-- increase to use more horizontal space */
+  margin: 20px auto; /* center on the page */
   padding: 0 20px 40px;
 }
 
@@ -27,8 +27,8 @@
   background: #fff;
   border-radius: 12px;
   padding: 20px;
-  box-shadow: 0 8px 22px rgba(20,30,60,0.06);
-  width: 100%;    /* important — let card fill the grid column */
+  box-shadow: 0 8px 22px rgba(20, 30, 60, 0.06);
+  width: 100%; /* important — let card fill the grid column */
   box-sizing: border-box;
 }
 
@@ -70,7 +70,7 @@
   margin: 18px 0;
   border: 0;
   height: 1px;
-  background: linear-gradient(90deg, rgba(0,0,0,0.04), rgba(0,0,0,0.02));
+  background: linear-gradient(90deg, rgba(0, 0, 0, 0.04), rgba(0, 0, 0, 0.02));
 }
 
 /* prefs list */
@@ -143,11 +143,19 @@
   cursor: pointer;
   border: none;
 }
-.btn-primary { background: #2563eb; color: white; }
-.btn-warning { background: #f59e0b; color: white; }
+.btn-primary {
+  background: #2563eb;
+  color: white;
+}
+.btn-warning {
+  background: #f59e0b;
+  color: white;
+}
 
 /* spacing class */
-.mt { margin-top: 6px; }
+.mt {
+  margin-top: 6px;
+}
 
 /* responsive: stack to single column on narrow screens */
 @media (max-width: 980px) {
@@ -155,12 +163,24 @@
     grid-template-columns: 1fr;
     gap: 14px;
   }
-  .settings-page { padding: 0 14px 30px; max-width: 900px; }
-  .avatar-img { width: 120px; height: 120px; }
+  .settings-page {
+    padding: 0 14px 30px;
+    max-width: 900px;
+  }
+  .avatar-img {
+    width: 120px;
+    height: 120px;
+  }
 }
 
 /* small screens */
 @media (max-width: 520px) {
-  .settings-page { padding: 0 10px 20px; max-width: 100%; }
-  .avatar-img { width: 100px; height: 100px; }
+  .settings-page {
+    padding: 0 10px 20px;
+    max-width: 100%;
+  }
+  .avatar-img {
+    width: 100px;
+    height: 100px;
+  }
 }

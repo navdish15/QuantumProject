@@ -1,5 +1,10 @@
 import React from "react";
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
 import Login from "./pages/Login";
 import ProtectedRoute from "./components/ProtectedRoute";
 import FloatingChatAdmin from "./components/FloatingChatAdmin"; // ✅ IMPORTANT
@@ -140,7 +145,10 @@ function App() {
           </Route>
 
           {/* old support */}
-          <Route path="/user-dashboard" element={<Navigate to="/user" replace />} />
+          <Route
+            path="/user-dashboard"
+            element={<Navigate to="/user" replace />}
+          />
         </Routes>
 
         {/* ✅ CHAT ALWAYS MOUNTED */}

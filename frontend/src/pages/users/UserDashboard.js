@@ -1,10 +1,5 @@
 // src/pages/users/UserDashboard.js
-import React, {
-  useEffect,
-  useState,
-  useCallback,
-  useRef,
-} from "react";
+import React, { useEffect, useState, useCallback, useRef } from "react";
 import { getUser } from "../../utils/auth";
 import api from "../../api"; // use same axios instance as admin
 
@@ -320,9 +315,7 @@ const FloatingChat = ({ currentUser }) => {
             }}
           >
             {loadingMessages && (
-              <div style={{ textAlign: "center", padding: 10 }}>
-                Loading...
-              </div>
+              <div style={{ textAlign: "center", padding: 10 }}>Loading...</div>
             )}
 
             {!loadingMessages && messages.length === 0 && (
@@ -510,7 +503,7 @@ const UserDashboard = () => {
   const handleMarkRead = async (id) => {
     const prev = notifications.slice();
     setNotifications((p) =>
-      p.map((n) => (n.id === id ? { ...n, is_read: 1 } : n))
+      p.map((n) => (n.id === id ? { ...n, is_read: 1 } : n)),
     );
     try {
       await api.put(`/user/notifications/${id}/read`);

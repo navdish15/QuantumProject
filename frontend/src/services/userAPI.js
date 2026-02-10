@@ -5,7 +5,8 @@ import axios from "axios";
 // Example final URLs:
 //   http://localhost:5000/api/experiments/assigned/:userId
 //   http://localhost:5000/api/experiments/:id/upload
-const API_BASE = process.env.REACT_APP_API_URL || "https://quantumproject-wbu2.onrender.com";
+const API_BASE =
+  process.env.REACT_APP_API_URL || "https://quantumproject-wbu2.onrender.com";
 
 const api = axios.create({
   baseURL: API_BASE,
@@ -21,7 +22,7 @@ api.interceptors.request.use(
     }
     return config;
   },
-  (err) => Promise.reject(err)
+  (err) => Promise.reject(err),
 );
 
 //
@@ -51,8 +52,7 @@ export const updateExperiment = (experimentId, payload) =>
 // If notifications are only under /admin/notifications,
 // keep these for admin use only or adjust paths accordingly.
 
-export const getNotifications = (userId) =>
-  api.get(`/notifications/${userId}`);
+export const getNotifications = (userId) => api.get(`/notifications/${userId}`);
 
 export const markNotificationRead = (notificationId) =>
   api.put(`/notifications/${notificationId}/read`);
@@ -83,7 +83,8 @@ export const uploadExperimentFile = (experimentId, file, onUploadProgress) => {
     })
     .catch((err) => {
       // Normalize error message a bit for nicer UI
-      const msg = err?.response?.data?.message || err.message || "Upload failed";
+      const msg =
+        err?.response?.data?.message || err.message || "Upload failed";
       const wrapped = new Error(msg);
       wrapped.status = err?.response?.status;
       wrapped.responseData = err?.response?.data;

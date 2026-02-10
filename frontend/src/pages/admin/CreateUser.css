@@ -4,7 +4,7 @@
   padding: 25px;
   border-radius: 10px;
   margin: 50px auto;
-  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
 .create-user-form label {

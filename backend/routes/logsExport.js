@@ -11,7 +11,7 @@ const toCSV = (rows) => {
     .map((row) =>
       Object.values(row)
         .map((v) => `"${String(v).replace(/"/g, '""')}"`)
-        .join(",")
+        .join(","),
     )
     .join("\n");
 
@@ -25,13 +25,24 @@ router.get("/export", (req, res) => {
   let where = [];
   let params = [];
 
-  if (event) { where.push("event = ?"); params.push(event); }
-  if (user_id) { where.push("user_id = ?"); params.push(user_id); }
-  if (severity) { where.push("severity = ?"); params.push(severity); }
+  if (event) {
+    where.push("event = ?");
+    params.push(event);
+  }
+  if (user_id) {
+    where.push("user_id = ?");
+    params.push(user_id);
+  }
+  if (severity) {
+    where.push("severity = ?");
+    params.push(severity);
+  }
 
   if (q) {
     let like = `%${q}%`;
-    where.push("(event LIKE ? OR user_name LIKE ? OR role LIKE ? OR details LIKE ?)");
+    where.push(
+      "(event LIKE ? OR user_name LIKE ? OR role LIKE ? OR details LIKE ?)",
+    );
     params.push(like, like, like, like);
   }
 

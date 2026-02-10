@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../../api";
 
-
 const UserExperiments = () => {
   const [experiments, setExperiments] = useState([]);
   const [error, setError] = useState("");
@@ -16,7 +15,10 @@ const UserExperiments = () => {
         const res = await api.get("/user/experiments");
         setExperiments(res.data);
       } catch (err) {
-        console.error("User experiments load error:", err.response?.data || err);
+        console.error(
+          "User experiments load error:",
+          err.response?.data || err,
+        );
         setError(err.response?.data?.message || "Failed to load experiments");
       } finally {
         setLoading(false);
@@ -25,7 +27,6 @@ const UserExperiments = () => {
 
     fetchExperiments();
   }, []);
-
 
   const getStatusStyles = (status) => {
     const base = {
@@ -127,9 +128,7 @@ const UserExperiments = () => {
             >
               Assigned Experiments
             </h3>
-            <span style={{ fontSize: 11, color: "#6b7280" }}>
-              Latest first
-            </span>
+            <span style={{ fontSize: 11, color: "#6b7280" }}>Latest first</span>
           </div>
 
           <div style={{ overflowX: "auto" }}>
@@ -213,7 +212,9 @@ const UserExperiments = () => {
                       transition: "background 0.12s ease",
                     }}
                   >
-                    <td style={{ padding: 8, color: "#111827", fontWeight: 500 }}>
+                    <td
+                      style={{ padding: 8, color: "#111827", fontWeight: 500 }}
+                    >
                       {exp.title}
                     </td>
                     <td

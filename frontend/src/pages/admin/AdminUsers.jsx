@@ -8,7 +8,7 @@ function AdminUsers() {
   const loadUsers = async () => {
     try {
       const res = await api.get("/admin/users");
-setUsers(Array.isArray(res.data) ? res.data : []);
+      setUsers(Array.isArray(res.data) ? res.data : []);
     } catch (err) {
       console.log("Error loading users:", err);
     }
@@ -18,16 +18,13 @@ setUsers(Array.isArray(res.data) ? res.data : []);
     try {
       const newStatus = currentStatus === "active" ? "inactive" : "active";
 
-await api.put(`/admin/toggle-status/${id}`, {
-  status: newStatus,
-});
+      await api.put(`/admin/toggle-status/${id}`, {
+        status: newStatus,
+      });
 
-setUsers((prev) =>
-  prev.map((u) =>
-    u.id === id ? { ...u, status: newStatus } : u
-  )
-);
-
+      setUsers((prev) =>
+        prev.map((u) => (u.id === id ? { ...u, status: newStatus } : u)),
+      );
     } catch (err) {
       console.log("Status update failed:", err);
     }

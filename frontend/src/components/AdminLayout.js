@@ -62,7 +62,7 @@ const AdminLayout = ({ children }) => {
   const markAsRead = async (id) => {
     try {
       setNotifications((prev) =>
-        prev.map((n) => (n.id === id ? { ...n, is_read: 1 } : n))
+        prev.map((n) => (n.id === id ? { ...n, is_read: 1 } : n)),
       );
       await api.put(`/admin/notifications/${id}/read`);
     } catch (err) {
@@ -106,7 +106,7 @@ const AdminLayout = ({ children }) => {
             role: u.role,
             avatar: u.avatar,
             avatar_url: u.avatar_url,
-          })
+          }),
         );
       } catch (e) {}
     } catch (err) {
@@ -181,14 +181,13 @@ const AdminLayout = ({ children }) => {
   const unreadCount = notifications.filter((n) => !n.is_read).length;
 
   // compute avatar src: prefer avatar_url, then avatar, then default
-const avatarSrc =
-  profile.avatar_url ||
-  (profile.avatar
-    ? profile.avatar.startsWith("http")
-      ? profile.avatar
-      : `${API_BASE}/${profile.avatar.replace(/^\/+/, "")}`
-    : DEFAULT_AVATAR);
-
+  const avatarSrc =
+    profile.avatar_url ||
+    (profile.avatar
+      ? profile.avatar.startsWith("http")
+        ? profile.avatar
+        : `${API_BASE}/${profile.avatar.replace(/^\/+/, "")}`
+      : DEFAULT_AVATAR);
 
   return (
     <div className="dashboard-container">
@@ -200,7 +199,11 @@ const avatarSrc =
 
         <div
           className="nav-right"
-          style={{ position: "relative", display: "flex", alignItems: "center" }}
+          style={{
+            position: "relative",
+            display: "flex",
+            alignItems: "center",
+          }}
         >
           {/* Notification bell */}
           <div
@@ -252,7 +255,11 @@ const avatarSrc =
           />
 
           {/* Logout icon */}
-          <FaSignOutAlt className="nav-icon" onClick={onLogout} title="Logout" />
+          <FaSignOutAlt
+            className="nav-icon"
+            onClick={onLogout}
+            title="Logout"
+          />
         </div>
       </div>
 

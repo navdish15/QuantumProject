@@ -8,7 +8,7 @@ const AddUser = () => {
     name: "",
     email: "",
     password: "",
-    role: "user"
+    role: "user",
   });
   const [loading, setLoading] = useState(false);
 
@@ -84,11 +84,7 @@ const AddUser = () => {
           required
         />
 
-        <select
-          name="role"
-          value={formData.role}
-          onChange={handleChange}
-        >
+        <select name="role" value={formData.role} onChange={handleChange}>
           <option value="admin">Admin</option>
           <option value="user">User</option>
         </select>

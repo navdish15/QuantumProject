@@ -25,7 +25,7 @@ const storage = multer.diskStorage({
       "..",
       "uploads",
       "experiments",
-      String(expId)
+      String(expId),
     );
     ensureDirSync(uploadPath);
     cb(null, uploadPath);
@@ -150,10 +150,10 @@ router.post(
               size,
             },
           });
-        }
+        },
       );
     });
-  }
+  },
 );
 
 // ---------------------------------------------------------
@@ -211,7 +211,7 @@ router.delete(
         "uploads",
         "experiments",
         String(expId),
-        storedName
+        storedName,
       );
 
       fs.unlink(filePath, (fsErr) => {
@@ -226,11 +226,11 @@ router.delete(
             if (delErr)
               return res.status(500).json({ message: "DB Error", err: delErr });
             return res.json({ message: "File deleted" });
-          }
+          },
         );
       });
     });
-  }
+  },
 );
 
 // =======================
@@ -248,7 +248,9 @@ router.post(
     const { tools_used, procedure_text, result } = req.body;
 
     if (!tools_used && !procedure_text && !result) {
-      return res.status(400).json({ message: "At least one field is required" });
+      return res
+        .status(400)
+        .json({ message: "At least one field is required" });
     }
 
     const sql = `
@@ -264,7 +266,13 @@ router.post(
 
     db.query(
       sql,
-      [experimentId, userId, tools_used || null, procedure_text || null, result || null],
+      [
+        experimentId,
+        userId,
+        tools_used || null,
+        procedure_text || null,
+        result || null,
+      ],
       (err) => {
         if (err) {
           console.error("Error saving experiment report:", err);
@@ -273,9 +281,9 @@ router.post(
             .json({ message: "Failed to save experiment report" });
         }
         return res.json({ message: "Experiment report saved successfully" });
-      }
+      },
     );
-  }
+  },
 );
 
 // Get report details (user → own report, admin → any report for that experiment)

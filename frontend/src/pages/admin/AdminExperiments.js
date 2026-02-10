@@ -10,7 +10,11 @@ const API_BASE =
 const AdminExperiments = () => {
   const [users, setUsers] = useState([]);
   const [experiments, setExperiments] = useState([]);
-  const [form, setForm] = useState({ title: "", description: "", assigned_to: "" });
+  const [form, setForm] = useState({
+    title: "",
+    description: "",
+    assigned_to: "",
+  });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -26,7 +30,11 @@ const AdminExperiments = () => {
 
   // NEW: edit popup state
   const [showEditModal, setShowEditModal] = useState(false);
-  const [editForm, setEditForm] = useState({ id: "", title: "", description: "" });
+  const [editForm, setEditForm] = useState({
+    id: "",
+    title: "",
+    description: "",
+  });
   const [editLoading, setEditLoading] = useState(false);
   useEffect(() => {
     fetchUsers();
@@ -79,7 +87,11 @@ const AdminExperiments = () => {
 
     setLoading(true);
     try {
-      await api.post("/admin/experiments", {title: form.title,description: form.description,assigned_to: form.assigned_to || null,});
+      await api.post("/admin/experiments", {
+        title: form.title,
+        description: form.description,
+        assigned_to: form.assigned_to || null,
+      });
       setSuccess("Experiment created successfully");
       setForm({ title: "", description: "", assigned_to: "" });
       fetchExperiments();
@@ -96,7 +108,7 @@ const AdminExperiments = () => {
     setError("");
     setSuccess("");
     try {
-      await api.put(`/admin/experiments/${id}/status`, {status: newStatus,});
+      await api.put(`/admin/experiments/${id}/status`, { status: newStatus });
       setSuccess("Status updated");
       fetchExperiments();
     } catch (err) {
@@ -109,7 +121,9 @@ const AdminExperiments = () => {
     setError("");
     setSuccess("");
     try {
-    await api.put(`/admin/experiments/${id}/assign`, {assigned_to: assignedTo || null,});
+      await api.put(`/admin/experiments/${id}/assign`, {
+        assigned_to: assignedTo || null,
+      });
       setSuccess("Assignment updated");
       fetchExperiments();
     } catch (err) {
@@ -164,14 +178,19 @@ const AdminExperiments = () => {
 
     try {
       const [filesRes, reportRes] = await Promise.all([
-      api.get(`/experiments/${exp.id}/files`),
-      api.get(`/experiments/${exp.id}/report`),
+        api.get(`/experiments/${exp.id}/files`),
+        api.get(`/experiments/${exp.id}/report`),
       ]);
       setFiles(filesRes.data);
       setReportDetails(reportRes.data); // can be null
     } catch (err) {
-      console.error("Admin load files/report error:", err.response?.data || err);
-      setFilesError(err.response?.data?.message || "Failed to load files or report");
+      console.error(
+        "Admin load files/report error:",
+        err.response?.data || err,
+      );
+      setFilesError(
+        err.response?.data?.message || "Failed to load files or report",
+      );
     } finally {
       setFilesLoading(false);
     }
@@ -231,15 +250,22 @@ const AdminExperiments = () => {
     setEditLoading(true);
 
     try {
-    await api.put(`/admin/experiments/${editForm.id}`, {title: editForm.title,description: editForm.description,});
+      await api.put(`/admin/experiments/${editForm.id}`, {
+        title: editForm.title,
+        description: editForm.description,
+      });
       setSuccess("Experiment updated");
       setShowEditModal(false);
       fetchExperiments();
       // if currently selected in viewer, update its title/description locally
       setSelectedExp((prev) =>
         prev && prev.id === editForm.id
-          ? { ...prev, title: editForm.title, description: editForm.description }
-          : prev
+          ? {
+              ...prev,
+              title: editForm.title,
+              description: editForm.description,
+            }
+          : prev,
       );
     } catch (err) {
       console.error("Edit experiment error:", err.response?.data || err);
@@ -250,13 +276,18 @@ const AdminExperiments = () => {
   };
 
   const handleDeleteExperiment = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this experiment? This action cannot be undone.")) return;
+    if (
+      !window.confirm(
+        "Are you sure you want to delete this experiment? This action cannot be undone.",
+      )
+    )
+      return;
 
     setError("");
     setSuccess("");
 
     try {
-    await api.delete(`/admin/experiments/${id}`);
+      await api.delete(`/admin/experiments/${id}`);
       setSuccess("Experiment deleted");
       // if this experiment is open in viewer, close it
       setSelectedExp((prev) => (prev && prev.id === id ? null : prev));
@@ -268,32 +299,67 @@ const AdminExperiments = () => {
   };
 
   // ===== DOWNLOAD URL (correct way) =====
-const getDownloadUrl = (file) =>
-  `${API_BASE}/uploads/experiments/${file.experiment_id}/${file.stored_name}`;
+  const getDownloadUrl = (file) =>
+    `${API_BASE}/uploads/experiments/${file.experiment_id}/${file.stored_name}`;
 
   // ---------------------------------------------------
 
   return (
     <AdminLayout>
-      <div style={{padding: 24,background: "#f3f4f6",minHeight: "100vh",boxSizing: "border-box",}}>
+      <div
+        style={{
+          padding: 24,
+          background: "#f3f4f6",
+          minHeight: "100vh",
+          boxSizing: "border-box",
+        }}
+      >
         {/* Page header */}
         <div style={{ marginBottom: 20 }}>
-          <h2 style={{ margin: 0, fontSize: 22, fontWeight: 600, color: "#111827" }}>
+          <h2
+            style={{
+              margin: 0,
+              fontSize: 22,
+              fontWeight: 600,
+              color: "#111827",
+            }}
+          >
             Experiments
           </h2>
           <p style={{ margin: "4px 0 0", fontSize: 13, color: "#6b7280" }}>
-            Create experiments, assign them to users, track status and view submitted reports.
+            Create experiments, assign them to users, track status and view
+            submitted reports.
           </p>
         </div>
 
         {/* Messages */}
         {error && (
-          <div style={{marginBottom: 12,padding: 10,borderRadius: 6,background: "#fee2e2",color: "#991b1b",fontSize: 13,border: "1px solid #fecaca",}}>
+          <div
+            style={{
+              marginBottom: 12,
+              padding: 10,
+              borderRadius: 6,
+              background: "#fee2e2",
+              color: "#991b1b",
+              fontSize: 13,
+              border: "1px solid #fecaca",
+            }}
+          >
             {error}
           </div>
         )}
         {success && (
-          <div style={{marginBottom: 12,padding: 10,borderRadius: 6,background: "#dcfce7",color: "#166534",fontSize: 13,border: "1px solid #bbf7d0",}}>
+          <div
+            style={{
+              marginBottom: 12,
+              padding: 10,
+              borderRadius: 6,
+              background: "#dcfce7",
+              color: "#166534",
+              fontSize: 13,
+              border: "1px solid #bbf7d0",
+            }}
+          >
             {success}
           </div>
         )}
@@ -301,12 +367,43 @@ const getDownloadUrl = (file) =>
         {/* Form + experiments list, now vertical (table below form) */}
         <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
           {/* Create / Assign Form */}
-          <div style={{padding: 18,borderRadius: 12,border: "1px solid #e5e7eb",background: "#ffffff",boxShadow: "0 1px 2px rgba(15, 23, 42, 0.04)",}}>
-            <div style={{display: "flex",justifyContent: "space-between",alignItems: "center",marginBottom: 10,}}>
-              <h3 style={{margin: 0,fontSize: 16,fontWeight: 600,color: "#111827",}}>
+          <div
+            style={{
+              padding: 18,
+              borderRadius: 12,
+              border: "1px solid #e5e7eb",
+              background: "#ffffff",
+              boxShadow: "0 1px 2px rgba(15, 23, 42, 0.04)",
+            }}
+          >
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                marginBottom: 10,
+              }}
+            >
+              <h3
+                style={{
+                  margin: 0,
+                  fontSize: 16,
+                  fontWeight: 600,
+                  color: "#111827",
+                }}
+              >
                 Create &amp; Assign Experiment
               </h3>
-              <span style={{fontSize: 11,color: "#6b7280",background: "#f9fafb",padding: "2px 8px",borderRadius: 999,border: "1px solid #e5e7eb",}}>
+              <span
+                style={{
+                  fontSize: 11,
+                  color: "#6b7280",
+                  background: "#f9fafb",
+                  padding: "2px 8px",
+                  borderRadius: 999,
+                  border: "1px solid #e5e7eb",
+                }}
+              >
                 Admin action
               </span>
             </div>
@@ -404,7 +501,9 @@ const getDownloadUrl = (file) =>
                     </option>
                   ))}
                 </select>
-                <p style={{ margin: "4px 0 0", fontSize: 11, color: "#9ca3af" }}>
+                <p
+                  style={{ margin: "4px 0 0", fontSize: 11, color: "#9ca3af" }}
+                >
                   You can leave this empty and assign later.
                 </p>
               </div>
@@ -457,7 +556,9 @@ const getDownloadUrl = (file) =>
               >
                 All Experiments
               </h3>
-              <span style={{ fontSize: 11, color: "#6b7280" }}>Latest first</span>
+              <span style={{ fontSize: 11, color: "#6b7280" }}>
+                Latest first
+              </span>
             </div>
 
             {experiments.length === 0 ? (
@@ -466,7 +567,13 @@ const getDownloadUrl = (file) =>
               </p>
             ) : (
               <div style={{ overflowX: "auto" }}>
-                <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+                <table
+                  style={{
+                    width: "100%",
+                    borderCollapse: "collapse",
+                    fontSize: 13,
+                  }}
+                >
                   <thead>
                     <tr style={{ background: "#f9fafb" }}>
                       <th
@@ -572,10 +679,11 @@ const getDownloadUrl = (file) =>
                   <tbody>
                     {experiments.map((exp) => {
                       const assignedUser = users.find(
-                        (u) => String(u.id) === String(exp.assigned_to)
+                        (u) => String(u.id) === String(exp.assigned_to),
                       );
                       const status = exp.status || "pending";
-                      const isLockedStatus = status === "done" || status === "approved";
+                      const isLockedStatus =
+                        status === "done" || status === "approved";
 
                       return (
                         <tr
@@ -585,8 +693,16 @@ const getDownloadUrl = (file) =>
                             transition: "background 0.12s ease",
                           }}
                         >
-                          <td style={{ padding: 8, color: "#4b5563" }}>{exp.id}</td>
-                          <td style={{ padding: 8, color: "#111827", fontWeight: 500 }}>
+                          <td style={{ padding: 8, color: "#4b5563" }}>
+                            {exp.id}
+                          </td>
+                          <td
+                            style={{
+                              padding: 8,
+                              color: "#111827",
+                              fontWeight: 500,
+                            }}
+                          >
                             {exp.title}
                           </td>
                           <td
@@ -603,12 +719,22 @@ const getDownloadUrl = (file) =>
                             {exp.description || "-"}
                           </td>
                           <td style={{ padding: 8 }}>
-                            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                              <span style={getStatusStyles(status)}>{status}</span>
+                            <div
+                              style={{
+                                display: "flex",
+                                alignItems: "center",
+                                gap: 8,
+                              }}
+                            >
+                              <span style={getStatusStyles(status)}>
+                                {status}
+                              </span>
                               {!isLockedStatus && (
                                 <select
                                   value={status}
-                                  onChange={(e) => handleStatusUpdate(exp.id, e.target.value)}
+                                  onChange={(e) =>
+                                    handleStatusUpdate(exp.id, e.target.value)
+                                  }
                                   style={{
                                     padding: "4px 6px",
                                     borderRadius: 999,
@@ -631,7 +757,13 @@ const getDownloadUrl = (file) =>
                           {/* Assigned To column */}
                           <td style={{ padding: 8, color: "#4b5563" }}>
                             {exp.assigned_to ? (
-                              <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+                              <div
+                                style={{
+                                  display: "flex",
+                                  flexDirection: "column",
+                                  gap: 2,
+                                }}
+                              >
                                 <span
                                   style={{
                                     fontWeight: 500,
@@ -642,7 +774,11 @@ const getDownloadUrl = (file) =>
                                     ? `${assignedUser.name} (${assignedUser.email})`
                                     : `User ID: ${exp.assigned_to}`}
                                 </span>
-                                <span style={{ fontSize: 11, color: "#9ca3af" }}>Assigned</span>
+                                <span
+                                  style={{ fontSize: 11, color: "#9ca3af" }}
+                                >
+                                  Assigned
+                                </span>
                               </div>
                             ) : (
                               <select
@@ -691,7 +827,9 @@ const getDownloadUrl = (file) =>
                           {/* NEW Actions buttons with lock condition */}
                           <td style={{ padding: 8 }}>
                             {isLockedStatus ? (
-                              <span style={{ fontSize: 11, color: "#9ca3af" }}>Locked</span>
+                              <span style={{ fontSize: 11, color: "#9ca3af" }}>
+                                Locked
+                              </span>
                             ) : (
                               <div style={{ display: "flex", gap: 6 }}>
                                 <button
@@ -797,8 +935,8 @@ const getDownloadUrl = (file) =>
                       color: "#9ca3af",
                     }}
                   >
-                    Status: <b>Approved</b> – user can no longer upload/delete files or edit
-                    the report.
+                    Status: <b>Approved</b> – user can no longer upload/delete
+                    files or edit the report.
                   </p>
                 )}
               </div>
@@ -952,7 +1090,9 @@ const getDownloadUrl = (file) =>
                     <tbody>
                       {files.map((file, index) => {
                         const downloadUrl = getDownloadUrl(file);
-                        const ext = (file.original_name.split(".").pop() || "").toLowerCase();
+                        const ext = (
+                          file.original_name.split(".").pop() || ""
+                        ).toLowerCase();
                         const canInlinePreview = [
                           "pdf",
                           "png",

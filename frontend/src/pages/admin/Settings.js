@@ -22,7 +22,7 @@ const Settings = () => {
     avatar_url: "",
     prefs: {},
   });
-const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [pw, setPw] = useState({ current: "", new: "", confirm: "" });
   const [notifPrefs, setNotifPrefs] = useState({ email: true, onsite: true });
 
@@ -127,11 +127,8 @@ const [loading, setLoading] = useState(false);
 
       // backend sends `url` (full) and `path` (relative) — prefer full url
       const fullUrl =
-  data.url ||
-  (data.path
-    ? `${API_BASE}/${data.path.replace(/^\/+/, "")}`
-    : null);
-
+        data.url ||
+        (data.path ? `${API_BASE}/${data.path.replace(/^\/+/, "")}` : null);
 
       setProfile((p) => ({
         ...p,
@@ -146,7 +143,7 @@ const [loading, setLoading] = useState(false);
       alert(
         `Upload failed${
           err.response?.data?.message ? `: ${err.response.data.message}` : ""
-        }`
+        }`,
       );
     }
   };
@@ -162,14 +159,13 @@ const [loading, setLoading] = useState(false);
   };
 
   // image source: prefer avatar_url (full), then avatar (relative/absolute), then MOCKUP_AVATAR
-const avatarSrc =
-  profile.avatar_url ||
-  (profile.avatar
-    ? profile.avatar.startsWith("http")
-      ? profile.avatar
-      : `${API_BASE}/${profile.avatar.replace(/^\/+/, "")}`
-    : MOCKUP_AVATAR);
-
+  const avatarSrc =
+    profile.avatar_url ||
+    (profile.avatar
+      ? profile.avatar.startsWith("http")
+        ? profile.avatar
+        : `${API_BASE}/${profile.avatar.replace(/^\/+/, "")}`
+      : MOCKUP_AVATAR);
 
   return (
     <AdminLayout>
@@ -272,9 +268,7 @@ const avatarSrc =
                   <input
                     type="password"
                     value={pw.current}
-                    onChange={(e) =>
-                      setPw({ ...pw, current: e.target.value })
-                    }
+                    onChange={(e) => setPw({ ...pw, current: e.target.value })}
                     required
                   />
                 </div>
@@ -294,9 +288,7 @@ const avatarSrc =
                   <input
                     type="password"
                     value={pw.confirm}
-                    onChange={(e) =>
-                      setPw({ ...pw, confirm: e.target.value })
-                    }
+                    onChange={(e) => setPw({ ...pw, confirm: e.target.value })}
                     required
                   />
                 </div>

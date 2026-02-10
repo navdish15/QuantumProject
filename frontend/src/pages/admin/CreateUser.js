@@ -12,7 +12,7 @@ const CreateUser = () => {
     email: "",
     password: "",
     role: "user",
-    phone: "",           // ✅ added
+    phone: "", // ✅ added
   });
   const [loading, setLoading] = useState(false);
 

@@ -139,10 +139,7 @@ const AdminDashboard = () => {
                 dataKey="value"
               >
                 {pieData.map((entry, index) => (
-                  <Cell
-                    key={index}
-                    fill={COLORS[index % COLORS.length]}
-                  />
+                  <Cell key={index} fill={COLORS[index % COLORS.length]} />
                 ))}
               </Pie>
               <Tooltip />
@@ -153,7 +150,6 @@ const AdminDashboard = () => {
 
       {/* ✅ Floating Chat Button for Admin */}
       <FloatingChatAdmin />
-
     </AdminLayout>
   );
 };

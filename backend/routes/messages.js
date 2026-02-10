@@ -77,9 +77,7 @@ router.get("/unread-count", authenticateToken, (req, res) => {
   db.query(sql, [userId], (err, rows) => {
     if (err) {
       console.error("Error fetching unread count:", err);
-      return res
-        .status(500)
-        .json({ message: "Failed to fetch unread count" });
+      return res.status(500).json({ message: "Failed to fetch unread count" });
     }
 
     const count = rows[0]?.cnt || 0;
@@ -101,18 +99,17 @@ router.put(
       WHERE receiver_id = ? AND sender_id = ? AND is_read = 0
     `;
 
-db.query(sql, [userId, otherUserId], (err) => {
-  if (err) {
-    console.error("Error marking messages read:", err);
-    return res
-      .status(500)
-      .json({ message: "Failed to mark messages as read" });
-  }
+    db.query(sql, [userId, otherUserId], (err) => {
+      if (err) {
+        console.error("Error marking messages read:", err);
+        return res
+          .status(500)
+          .json({ message: "Failed to mark messages as read" });
+      }
 
-  res.json({ message: "Messages marked as read" });
-});
-
-  }
+      res.json({ message: "Messages marked as read" });
+    });
+  },
 );
 
 module.exports = router;

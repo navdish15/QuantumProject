@@ -38,7 +38,15 @@ export default function UserSidebar() {
         gap: 12,
       }}
     >
-      <nav style={{ display: "flex", flexDirection: "column", gap: 6, marginTop: 4, flex: 1 }}>
+      <nav
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          gap: 6,
+          marginTop: 4,
+          flex: 1,
+        }}
+      >
         {/* exact matches only */}
         <NavItem to="/user">
           <span style={{ width: 18, textAlign: "center" }}>🏠</span>
@@ -54,7 +62,6 @@ export default function UserSidebar() {
           <span style={{ width: 18, textAlign: "center" }}>📁</span>
           Files
         </NavItem>
-
 
         {/* <NavItem to="/user/profile">
           <span style={{ width: 18, textAlign: "center" }}>👤</span>
