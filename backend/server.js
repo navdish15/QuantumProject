@@ -1,20 +1,19 @@
-// server.js
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
 
 const app = express();
 
-// GLOBAL MIDDLEWARES
+// ✅ FIXED CORS
 app.use(
   cors({
-    origin: [
-      'https://quantum-project-blush.vercel.app',
-      /\.vercel\.app$/, // allow all Vercel previews
-    ],
+    origin: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true,
   })
 );
+app.options('*', cors());
 
 app.use(express.json());
 
