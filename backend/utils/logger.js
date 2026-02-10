@@ -1,4 +1,4 @@
-const db = require("../config/db");
+const db = require('../config/db');
 
 exports.log = (opts) => {
   const {
@@ -8,7 +8,7 @@ exports.log = (opts) => {
     event,
     resource_type = null,
     resource_id = null,
-    severity = "info",
+    severity = 'info',
     ip = null,
     user_agent = null,
     details = {},
@@ -18,22 +18,7 @@ exports.log = (opts) => {
     (user_id, user_name, role, event, resource_type, resource_id, severity, ip, user_agent, details)
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
 
-  db.query(
-    sql,
-    [
-      user_id,
-      user_name,
-      role,
-      event,
-      resource_type,
-      resource_id,
-      severity,
-      ip,
-      user_agent,
-      JSON.stringify(details),
-    ],
-    (err) => {
-      if (err) console.error("Failed to write log:", err);
-    },
-  );
+  db.query(sql, [user_id, user_name, role, event, resource_type, resource_id, severity, ip, user_agent, JSON.stringify(details)], (err) => {
+    if (err) console.error('Failed to write log:', err);
+  });
 };

@@ -1,7 +1,7 @@
 // src/components/FloatingChatAdmin.js
-import React, { useState, useEffect, useRef, useCallback } from "react";
-import api from "../api";
-import { getUser } from "../utils/auth";
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import api from '../api';
+import { getUser } from '../utils/auth';
 
 const FloatingChatAdmin = () => {
   const admin = getUser();
@@ -9,10 +9,10 @@ const FloatingChatAdmin = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [users, setUsers] = useState([]);
   const [selectedUserId, setSelectedUserId] = useState(null);
-  const [selectedUserName, setSelectedUserName] = useState("");
+  const [selectedUserName, setSelectedUserName] = useState('');
 
   const [messages, setMessages] = useState([]);
-  const [newMessage, setNewMessage] = useState("");
+  const [newMessage, setNewMessage] = useState('');
 
   const [loadingMessages, setLoadingMessages] = useState(false);
   const [loadingUsers, setLoadingUsers] = useState(false);
@@ -26,15 +26,11 @@ const FloatingChatAdmin = () => {
   const loadUsers = useCallback(async () => {
     try {
       setLoadingUsers(true);
-      const res = await api.get("/admin/users");
+      const res = await api.get('/admin/users');
 
-      const list = Array.isArray(res.data)
-        ? res.data
-        : Array.isArray(res.data?.users)
-          ? res.data.users
-          : [];
+      const list = Array.isArray(res.data) ? res.data : Array.isArray(res.data?.users) ? res.data.users : [];
 
-      const filtered = list.filter((u) => u.role !== "admin");
+      const filtered = list.filter((u) => u.role !== 'admin');
       setUsers(filtered);
 
       const stillExists = filtered.some((u) => u.id === selectedUserId);
@@ -46,7 +42,7 @@ const FloatingChatAdmin = () => {
           setSelectedUserName(u.name || u.email);
         } else {
           setSelectedUserId(null);
-          setSelectedUserName("");
+          setSelectedUserName('');
         }
       }
     } catch (err) {
@@ -80,7 +76,7 @@ const FloatingChatAdmin = () => {
   // ---------------- UNREAD COUNT ----------------
   const loadUnreadCount = useCallback(async () => {
     try {
-      const res = await api.get("/messages/unread-count");
+      const res = await api.get('/messages/unread-count');
       setUnreadCount(res.data?.count || 0);
     } catch {}
   }, []);
@@ -127,7 +123,7 @@ const FloatingChatAdmin = () => {
     const t = setTimeout(() => {
       messagesRef.current?.scrollTo({
         top: messagesRef.current.scrollHeight,
-        behavior: "smooth",
+        behavior: 'smooth',
       });
     }, 50);
     return () => clearTimeout(t);
@@ -140,35 +136,35 @@ const FloatingChatAdmin = () => {
 
     setSending(true);
     try {
-      await api.post("/messages", {
+      await api.post('/messages', {
         receiverId: selectedUserId,
         content: newMessage.trim(),
       });
-      setNewMessage("");
+      setNewMessage('');
       loadMessages();
     } finally {
       setSending(false);
     }
   };
 
-  const badgeText = unreadCount > 9 ? "9+" : unreadCount > 0 ? unreadCount : "";
+  const badgeText = unreadCount > 9 ? '9+' : unreadCount > 0 ? unreadCount : '';
 
   return (
     <>
       {isOpen && (
         <div
           style={{
-            position: "fixed",
+            position: 'fixed',
             right: 20,
             bottom: 90,
             width: 360,
             height: 420,
-            background: "#fff",
+            background: '#fff',
             borderRadius: 12,
-            boxShadow: "0 10px 30px rgba(0,0,0,0.2)",
-            display: "flex",
-            flexDirection: "column",
-            overflow: "hidden",
+            boxShadow: '0 10px 30px rgba(0,0,0,0.2)',
+            display: 'flex',
+            flexDirection: 'column',
+            overflow: 'hidden',
             zIndex: 1000,
           }}
         >
@@ -176,21 +172,17 @@ const FloatingChatAdmin = () => {
           <div
             style={{
               padding: 10,
-              background: "#0f172a",
-              color: "#fff",
+              background: '#0f172a',
+              color: '#fff',
               fontSize: 14,
             }}
           >
-            Admin Chat {admin?.name ? `– ${admin.name}` : ""}
+            Admin Chat {admin?.name ? `– ${admin.name}` : ''}
           </div>
 
           {/* Users */}
-          <div style={{ padding: 8, borderBottom: "1px solid #eee" }}>
-            <select
-              value={selectedUserId || ""}
-              onChange={(e) => setSelectedUserId(Number(e.target.value))}
-              style={{ width: "100%" }}
-            >
+          <div style={{ padding: 8, borderBottom: '1px solid #eee' }}>
+            <select value={selectedUserId || ''} onChange={(e) => setSelectedUserId(Number(e.target.value))} style={{ width: '100%' }}>
               {users.map((u) => (
                 <option key={u.id} value={u.id}>
                   {u.name || u.email}
@@ -204,9 +196,9 @@ const FloatingChatAdmin = () => {
             ref={messagesRef}
             style={{
               flex: 1,
-              overflowY: "auto",
+              overflowY: 'auto',
               padding: 10,
-              background: "#f8fafc",
+              background: '#f8fafc',
             }}
           >
             {messages.map((m) => {
@@ -215,19 +207,19 @@ const FloatingChatAdmin = () => {
                 <div
                   key={m.id}
                   style={{
-                    textAlign: isAdmin ? "right" : "left",
+                    textAlign: isAdmin ? 'right' : 'left',
                     marginBottom: 6,
                   }}
                 >
                   <div
                     style={{
-                      display: "inline-block",
-                      padding: "6px 8px",
+                      display: 'inline-block',
+                      padding: '6px 8px',
                       borderRadius: 8,
-                      background: isAdmin ? "#0f172a" : "#e5f2ff",
-                      color: isAdmin ? "#fff" : "#000",
+                      background: isAdmin ? '#0f172a' : '#e5f2ff',
+                      color: isAdmin ? '#fff' : '#000',
                       fontSize: 13,
-                      maxWidth: "70%",
+                      maxWidth: '70%',
                     }}
                   >
                     {m.content}
@@ -238,15 +230,8 @@ const FloatingChatAdmin = () => {
           </div>
 
           {/* Input */}
-          <form
-            onSubmit={handleSend}
-            style={{ display: "flex", padding: 8, gap: 6 }}
-          >
-            <input
-              value={newMessage}
-              onChange={(e) => setNewMessage(e.target.value)}
-              style={{ flex: 1 }}
-            />
+          <form onSubmit={handleSend} style={{ display: 'flex', padding: 8, gap: 6 }}>
+            <input value={newMessage} onChange={(e) => setNewMessage(e.target.value)} style={{ flex: 1 }} />
             <button type="submit" disabled={sending}>
               Send
             </button>
@@ -258,19 +243,19 @@ const FloatingChatAdmin = () => {
       <div
         onClick={() => setIsOpen((p) => !p)}
         style={{
-          position: "fixed",
+          position: 'fixed',
           right: 20,
           bottom: 20,
           width: 60,
           height: 60,
-          borderRadius: "50%",
-          background: "#0f172a",
-          color: "#fff",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
+          borderRadius: '50%',
+          background: '#0f172a',
+          color: '#fff',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
           fontSize: 24,
-          cursor: "pointer",
+          cursor: 'pointer',
         }}
       >
         💬 {badgeText}

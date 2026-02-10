@@ -1,12 +1,12 @@
-import React from "react";
-import { Navigate } from "react-router-dom";
+import React from 'react';
+import { Navigate } from 'react-router-dom';
 
 const ProtectedRoute = ({ children, role }) => {
-  const token = localStorage.getItem("token");
+  const token = localStorage.getItem('token');
 
   let user = {};
   try {
-    user = JSON.parse(localStorage.getItem("user") || "{}");
+    user = JSON.parse(localStorage.getItem('user') || '{}');
   } catch (err) {
     user = {};
   }

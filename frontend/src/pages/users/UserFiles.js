@@ -1,26 +1,26 @@
 // src/pages/users/UserFiles.js
-import React, { useEffect, useState } from "react";
-import api from "../../api";
-import { useNavigate } from "react-router-dom";
+import React, { useEffect, useState } from 'react';
+import api from '../../api';
+import { useNavigate } from 'react-router-dom';
 
 const UserFiles = () => {
   const [files, setFiles] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-  const [search, setSearch] = useState("");
+  const [error, setError] = useState('');
+  const [search, setSearch] = useState('');
 
   const navigate = useNavigate();
 
   useEffect(() => {
     const fetchFiles = async () => {
       try {
-        setError("");
+        setError('');
 
-        const res = await api.get("/experiments/user");
+        const res = await api.get('/experiments/user');
         setFiles(Array.isArray(res.data) ? res.data : []);
       } catch (err) {
-        console.error("Error loading files", err);
-        setError("Failed to load files. Please try again later.");
+        console.error('Error loading files', err);
+        setError('Failed to load files. Please try again later.');
       } finally {
         setLoading(false);
       }
@@ -32,7 +32,7 @@ const UserFiles = () => {
   const handleDownload = (file) => {
     const url = `${process.env.REACT_APP_API_URL}/uploads/experiments/${file.experiment_id}/${file.stored_name}`;
 
-    window.open(url, "_blank");
+    window.open(url, '_blank');
   };
 
   const handleViewExperiment = (file) => {
@@ -44,8 +44,8 @@ const UserFiles = () => {
     const term = search.trim().toLowerCase();
     if (!term) return true;
 
-    const expTitle = (file.experiment_title || "").toLowerCase();
-    const fileName = (file.filename || "").toLowerCase();
+    const expTitle = (file.experiment_title || '').toLowerCase();
+    const fileName = (file.filename || '').toLowerCase();
 
     return expTitle.includes(term) || fileName.includes(term);
   });
@@ -54,27 +54,27 @@ const UserFiles = () => {
     <div
       style={{
         padding: 24,
-        background: "#f8fafc",
-        minHeight: "100vh",
-        boxSizing: "border-box",
+        background: '#f8fafc',
+        minHeight: '100vh',
+        boxSizing: 'border-box',
       }}
     >
-      <div style={{ maxWidth: 1100, margin: "0 auto" }}>
+      <div style={{ maxWidth: 1100, margin: '0 auto' }}>
         <div
           style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "flex-end",
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'flex-end',
             gap: 16,
             marginBottom: 16,
           }}
         >
           <div>
-            <h2 style={{ marginBottom: 6, color: "#0f172a" }}>Files</h2>
+            <h2 style={{ marginBottom: 6, color: '#0f172a' }}>Files</h2>
             <p
               style={{
                 margin: 0,
-                color: "#64748b",
+                color: '#64748b',
                 fontSize: 14,
               }}
             >
@@ -89,12 +89,12 @@ const UserFiles = () => {
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search by experiment or file name..."
               style={{
-                padding: "8px 10px",
+                padding: '8px 10px',
                 borderRadius: 8,
-                border: "1px solid #cbd5f5",
+                border: '1px solid #cbd5f5',
                 minWidth: 260,
                 fontSize: 13,
-                outline: "none",
+                outline: 'none',
               }}
             />
           </div>
@@ -104,9 +104,9 @@ const UserFiles = () => {
           <div
             style={{
               padding: 16,
-              background: "#fff",
+              background: '#fff',
               borderRadius: 8,
-              border: "1px solid #e2e8f0",
+              border: '1px solid #e2e8f0',
             }}
           >
             Loading files...
@@ -117,43 +117,40 @@ const UserFiles = () => {
           <div
             style={{
               padding: 16,
-              background: "#fef2f2",
+              background: '#fef2f2',
               borderRadius: 8,
-              border: "1px solid #fecaca",
-              color: "#b91c1c",
+              border: '1px solid #fecaca',
+              color: '#b91c1c',
             }}
           >
             {error}
           </div>
         )}
 
-        {!loading &&
-          !error &&
-          filteredFiles.length === 0 &&
-          files.length > 0 && (
-            <div
-              style={{
-                padding: 24,
-                background: "#fff",
-                borderRadius: 8,
-                border: "1px solid #e2e8f0",
-                textAlign: "center",
-                color: "#64748b",
-              }}
-            >
-              No files match your search.
-            </div>
-          )}
+        {!loading && !error && filteredFiles.length === 0 && files.length > 0 && (
+          <div
+            style={{
+              padding: 24,
+              background: '#fff',
+              borderRadius: 8,
+              border: '1px solid #e2e8f0',
+              textAlign: 'center',
+              color: '#64748b',
+            }}
+          >
+            No files match your search.
+          </div>
+        )}
 
         {!loading && !error && files.length === 0 && (
           <div
             style={{
               padding: 24,
-              background: "#fff",
+              background: '#fff',
               borderRadius: 8,
-              border: "1px solid #e2e8f0",
-              textAlign: "center",
-              color: "#64748b",
+              border: '1px solid #e2e8f0',
+              textAlign: 'center',
+              color: '#64748b',
             }}
           >
             No files available yet.
@@ -163,62 +160,62 @@ const UserFiles = () => {
         {!loading && !error && filteredFiles.length > 0 && (
           <div
             style={{
-              background: "#ffffff",
+              background: '#ffffff',
               borderRadius: 8,
-              border: "1px solid #e2e8f0",
-              overflow: "hidden",
+              border: '1px solid #e2e8f0',
+              overflow: 'hidden',
             }}
           >
             <table
               style={{
-                width: "100%",
-                borderCollapse: "collapse",
+                width: '100%',
+                borderCollapse: 'collapse',
                 fontSize: 14,
               }}
             >
-              <thead style={{ background: "#f1f5f9" }}>
+              <thead style={{ background: '#f1f5f9' }}>
                 <tr>
                   <th
                     style={{
-                      textAlign: "left",
-                      padding: "10px 12px",
-                      borderBottom: "1px solid #e2e8f0",
+                      textAlign: 'left',
+                      padding: '10px 12px',
+                      borderBottom: '1px solid #e2e8f0',
                     }}
                   >
                     Experiment
                   </th>
                   <th
                     style={{
-                      textAlign: "left",
-                      padding: "10px 12px",
-                      borderBottom: "1px solid #e2e8f0",
+                      textAlign: 'left',
+                      padding: '10px 12px',
+                      borderBottom: '1px solid #e2e8f0',
                     }}
                   >
                     File Name
                   </th>
                   <th
                     style={{
-                      textAlign: "left",
-                      padding: "10px 12px",
-                      borderBottom: "1px solid #e2e8f0",
+                      textAlign: 'left',
+                      padding: '10px 12px',
+                      borderBottom: '1px solid #e2e8f0',
                     }}
                   >
                     Size
                   </th>
                   <th
                     style={{
-                      textAlign: "left",
-                      padding: "10px 12px",
-                      borderBottom: "1px solid #e2e8f0",
+                      textAlign: 'left',
+                      padding: '10px 12px',
+                      borderBottom: '1px solid #e2e8f0',
                     }}
                   >
                     Uploaded On
                   </th>
                   <th
                     style={{
-                      textAlign: "center",
-                      padding: "10px 12px",
-                      borderBottom: "1px solid #e2e8f0",
+                      textAlign: 'center',
+                      padding: '10px 12px',
+                      borderBottom: '1px solid #e2e8f0',
                     }}
                   >
                     Action
@@ -230,63 +227,61 @@ const UserFiles = () => {
                   <tr key={file.id}>
                     <td
                       style={{
-                        padding: "10px 12px",
-                        borderBottom: "1px solid #e2e8f0",
-                        color: "#0f172a",
+                        padding: '10px 12px',
+                        borderBottom: '1px solid #e2e8f0',
+                        color: '#0f172a',
                       }}
                     >
-                      {file.experiment_title || "-"}
+                      {file.experiment_title || '-'}
                     </td>
                     <td
                       style={{
-                        padding: "10px 12px",
-                        borderBottom: "1px solid #e2e8f0",
-                        color: "#1e293b",
+                        padding: '10px 12px',
+                        borderBottom: '1px solid #e2e8f0',
+                        color: '#1e293b',
                       }}
                     >
                       {file.filename}
                     </td>
                     <td
                       style={{
-                        padding: "10px 12px",
-                        borderBottom: "1px solid #e2e8f0",
-                        color: "#64748b",
+                        padding: '10px 12px',
+                        borderBottom: '1px solid #e2e8f0',
+                        color: '#64748b',
                       }}
                     >
-                      {file.size ? `${(file.size / 1024).toFixed(1)} KB` : "-"}
+                      {file.size ? `${(file.size / 1024).toFixed(1)} KB` : '-'}
                     </td>
                     <td
                       style={{
-                        padding: "10px 12px",
-                        borderBottom: "1px solid #e2e8f0",
-                        color: "#64748b",
+                        padding: '10px 12px',
+                        borderBottom: '1px solid #e2e8f0',
+                        color: '#64748b',
                       }}
                     >
-                      {file.uploaded_at
-                        ? new Date(file.uploaded_at).toLocaleString()
-                        : "-"}
+                      {file.uploaded_at ? new Date(file.uploaded_at).toLocaleString() : '-'}
                     </td>
                     <td
                       style={{
-                        padding: "10px 12px",
-                        borderBottom: "1px solid #e2e8f0",
-                        textAlign: "center",
-                        display: "flex",
+                        padding: '10px 12px',
+                        borderBottom: '1px solid #e2e8f0',
+                        textAlign: 'center',
+                        display: 'flex',
                         gap: 8,
-                        justifyContent: "center",
+                        justifyContent: 'center',
                       }}
                     >
                       <button
                         onClick={() => handleViewExperiment(file)}
                         style={{
-                          padding: "6px 10px",
+                          padding: '6px 10px',
                           borderRadius: 6,
-                          border: "1px solid #e2e8f0",
-                          background: "#f8fafc",
-                          color: "#1e293b",
+                          border: '1px solid #e2e8f0',
+                          background: '#f8fafc',
+                          color: '#1e293b',
                           fontSize: 12,
                           fontWeight: 500,
-                          cursor: "pointer",
+                          cursor: 'pointer',
                         }}
                       >
                         View Experiment
@@ -294,14 +289,14 @@ const UserFiles = () => {
                       <button
                         onClick={() => handleDownload(file)}
                         style={{
-                          padding: "6px 10px",
+                          padding: '6px 10px',
                           borderRadius: 6,
-                          border: "none",
-                          background: "#2563eb",
-                          color: "#fff",
+                          border: 'none',
+                          background: '#2563eb',
+                          color: '#fff',
                           fontSize: 12,
                           fontWeight: 500,
-                          cursor: "pointer",
+                          cursor: 'pointer',
                         }}
                       >
                         Download

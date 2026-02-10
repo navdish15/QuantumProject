@@ -1,36 +1,31 @@
-import React from "react";
-import {
-  BrowserRouter as Router,
-  Routes,
-  Route,
-  Navigate,
-} from "react-router-dom";
-import Login from "./pages/Login";
-import ProtectedRoute from "./components/ProtectedRoute";
-import FloatingChatAdmin from "./components/FloatingChatAdmin"; // ✅ IMPORTANT
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import Login from './pages/Login';
+import ProtectedRoute from './components/ProtectedRoute';
+import FloatingChatAdmin from './components/FloatingChatAdmin'; // ✅ IMPORTANT
 
 // ADMIN
-import AdminDashboard from "./pages/admin/AdminDashboard";
-import CreateUser from "./pages/admin/CreateUser";
-import AdminUsers from "./pages/admin/AdminUsers";
-import AdminLogs from "./pages/admin/AdminLogs";
-import Settings from "./pages/admin/Settings";
-import AdminExperiments from "./pages/admin/AdminExperiments";
-import AdminExperimentFiles from "./pages/admin/AdminExperimentFiles";
+import AdminDashboard from './pages/admin/AdminDashboard';
+import CreateUser from './pages/admin/CreateUser';
+import AdminUsers from './pages/admin/AdminUsers';
+import AdminLogs from './pages/admin/AdminLogs';
+import Settings from './pages/admin/Settings';
+import AdminExperiments from './pages/admin/AdminExperiments';
+import AdminExperimentFiles from './pages/admin/AdminExperimentFiles';
 
 // USER
-import UserLayout from "./pages/users/UserLayout";
-import UserDashboard from "./pages/users/UserDashboard";
-import UserExperiments from "./pages/users/UserExperiments";
-import ExperimentDetails from "./pages/users/ExperimentDetails";
-import UserFiles from "./pages/users/UserFiles";
+import UserLayout from './pages/users/UserLayout';
+import UserDashboard from './pages/users/UserDashboard';
+import UserExperiments from './pages/users/UserExperiments';
+import ExperimentDetails from './pages/users/ExperimentDetails';
+import UserFiles from './pages/users/UserFiles';
 
 function App() {
-  const token = localStorage.getItem("token");
+  const token = localStorage.getItem('token');
 
   let user = {};
   try {
-    user = JSON.parse(localStorage.getItem("user") || "{}");
+    user = JSON.parse(localStorage.getItem('user') || '{}');
   } catch {
     user = {};
   }
@@ -40,20 +35,7 @@ function App() {
       <>
         <Routes>
           {/* ---------- LOGIN / ROOT REDIRECT ---------- */}
-          <Route
-            path="/"
-            element={
-              token ? (
-                user?.role === "admin" ? (
-                  <Navigate to="/admin-dashboard" replace />
-                ) : (
-                  <Navigate to="/user" replace />
-                )
-              ) : (
-                <Login />
-              )
-            }
-          />
+          <Route path="/" element={token ? user?.role === 'admin' ? <Navigate to="/admin-dashboard" replace /> : <Navigate to="/user" replace /> : <Login />} />
 
           {/* ------------------ ADMIN ROUTES ------------------ */}
           <Route
@@ -145,10 +127,7 @@ function App() {
           </Route>
 
           {/* old support */}
-          <Route
-            path="/user-dashboard"
-            element={<Navigate to="/user" replace />}
-          />
+          <Route path="/user-dashboard" element={<Navigate to="/user" replace />} />
         </Routes>
 
         {/* ✅ CHAT ALWAYS MOUNTED */}

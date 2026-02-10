@@ -1,14 +1,12 @@
 // src/components/AdminLayout.js
-import React, { useEffect, useState } from "react";
-import "./AdminDashboard.css";
-import { FaBell, FaUserCircle, FaSignOutAlt } from "react-icons/fa";
-import { useNavigate } from "react-router-dom";
-import api from "../api"; // shared axios instance
+import React, { useEffect, useState } from 'react';
+import './AdminDashboard.css';
+import { FaBell, FaUserCircle, FaSignOutAlt } from 'react-icons/fa';
+import { useNavigate } from 'react-router-dom';
+import api from '../api'; // shared axios instance
 
 // Build base URL from axios or window
-const API_BASE =
-  (api.defaults?.baseURL && api.defaults.baseURL.replace(/\/$/, "")) ||
-  window.location.origin;
+const API_BASE = (api.defaults?.baseURL && api.defaults.baseURL.replace(/\/$/, '')) || window.location.origin;
 
 // Real default avatar served by backend: backend/uploads/avatars/default-avatar.png
 const DEFAULT_AVATAR = `${API_BASE}/uploads/avatars/default-avatar.png`;
@@ -27,11 +25,11 @@ const AdminLayout = ({ children }) => {
   // profile data
   const [profile, setProfile] = useState({
     id: null,
-    name: "Admin",
-    email: "",
-    role: "admin",
-    avatar: "",
-    avatar_url: "",
+    name: 'Admin',
+    email: '',
+    role: 'admin',
+    avatar: '',
+    avatar_url: '',
   });
   const [, setLoadingProfile] = useState(false);
 
@@ -41,10 +39,10 @@ const AdminLayout = ({ children }) => {
   const fetchNotifications = async () => {
     setLoadingNotifs(true);
     try {
-      const res = await api.get("/admin/notifications");
+      const res = await api.get('/admin/notifications');
       setNotifications(Array.isArray(res.data) ? res.data : []);
     } catch (err) {
-      console.warn("Could not load notifications.", err);
+      console.warn('Could not load notifications.', err);
       setNotifications([]);
     } finally {
       setLoadingNotifs(false);
@@ -61,12 +59,10 @@ const AdminLayout = ({ children }) => {
 
   const markAsRead = async (id) => {
     try {
-      setNotifications((prev) =>
-        prev.map((n) => (n.id === id ? { ...n, is_read: 1 } : n)),
-      );
+      setNotifications((prev) => prev.map((n) => (n.id === id ? { ...n, is_read: 1 } : n)));
       await api.put(`/admin/notifications/${id}/read`);
     } catch (err) {
-      console.warn("Could not mark notification as read", err);
+      console.warn('Could not mark notification as read', err);
     }
   };
 
@@ -83,22 +79,22 @@ const AdminLayout = ({ children }) => {
     setLoadingProfile(true);
     try {
       // Always hit /admin/profile (same as Settings page)
-      const res = await api.get("/admin/profile");
+      const res = await api.get('/admin/profile');
       const u = res.data || {};
 
       setProfile({
         id: u.id || null,
-        name: u.name || "Admin",
-        email: u.email || "",
-        role: u.role || "admin",
-        avatar: u.avatar || "",
-        avatar_url: u.avatar_url || "",
+        name: u.name || 'Admin',
+        email: u.email || '',
+        role: u.role || 'admin',
+        avatar: u.avatar || '',
+        avatar_url: u.avatar_url || '',
       });
 
       // Optionally cache minimal user data in localStorage
       try {
         localStorage.setItem(
-          "user",
+          'user',
           JSON.stringify({
             id: u.id,
             name: u.name,
@@ -106,11 +102,11 @@ const AdminLayout = ({ children }) => {
             role: u.role,
             avatar: u.avatar,
             avatar_url: u.avatar_url,
-          }),
+          })
         );
       } catch (e) {}
     } catch (err) {
-      console.warn("Could not load /admin/profile.", err);
+      console.warn('Could not load /admin/profile.', err);
     } finally {
       setLoadingProfile(false);
     }
@@ -127,12 +123,12 @@ const AdminLayout = ({ children }) => {
   // Logout — clear token and redirect to login
   const onLogout = () => {
     try {
-      localStorage.removeItem("token");
-      localStorage.removeItem("user");
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
     } catch (e) {}
     setProfileOpen(false);
     setNotifOpen(false);
-    navigate("/");
+    navigate('/');
   };
 
   // --------------------------------------------------
@@ -147,28 +143,20 @@ const AdminLayout = ({ children }) => {
   // click outside to close panels
   useEffect(() => {
     const handleClick = (e) => {
-      const notifPanel = document.getElementById("notif-panel");
-      const profilePanel = document.getElementById("profile-panel");
+      const notifPanel = document.getElementById('notif-panel');
+      const profilePanel = document.getElementById('profile-panel');
 
-      if (
-        notifPanel &&
-        !notifPanel.contains(e.target) &&
-        e.target.closest(".nav-icon")?.getAttribute("data-role") !== "notif"
-      ) {
+      if (notifPanel && !notifPanel.contains(e.target) && e.target.closest('.nav-icon')?.getAttribute('data-role') !== 'notif') {
         setNotifOpen(false);
       }
 
-      if (
-        profilePanel &&
-        !profilePanel.contains(e.target) &&
-        e.target.closest(".nav-icon")?.getAttribute("data-role") !== "profile"
-      ) {
+      if (profilePanel && !profilePanel.contains(e.target) && e.target.closest('.nav-icon')?.getAttribute('data-role') !== 'profile') {
         setProfileOpen(false);
       }
     };
 
-    window.addEventListener("click", handleClick);
-    return () => window.removeEventListener("click", handleClick);
+    window.addEventListener('click', handleClick);
+    return () => window.removeEventListener('click', handleClick);
   }, []);
 
   // Polling: refresh notifications every 10s
@@ -183,11 +171,7 @@ const AdminLayout = ({ children }) => {
   // compute avatar src: prefer avatar_url, then avatar, then default
   const avatarSrc =
     profile.avatar_url ||
-    (profile.avatar
-      ? profile.avatar.startsWith("http")
-        ? profile.avatar
-        : `${API_BASE}/${profile.avatar.replace(/^\/+/, "")}`
-      : DEFAULT_AVATAR);
+    (profile.avatar ? (profile.avatar.startsWith('http') ? profile.avatar : `${API_BASE}/${profile.avatar.replace(/^\/+/, '')}`) : DEFAULT_AVATAR);
 
   return (
     <div className="dashboard-container">
@@ -200,17 +184,17 @@ const AdminLayout = ({ children }) => {
         <div
           className="nav-right"
           style={{
-            position: "relative",
-            display: "flex",
-            alignItems: "center",
+            position: 'relative',
+            display: 'flex',
+            alignItems: 'center',
           }}
         >
           {/* Notification bell */}
           <div
             style={{
-              position: "relative",
-              display: "inline-flex",
-              alignItems: "center",
+              position: 'relative',
+              display: 'inline-flex',
+              alignItems: 'center',
             }}
           >
             <FaBell
@@ -226,12 +210,12 @@ const AdminLayout = ({ children }) => {
             {unreadCount > 0 && (
               <span
                 style={{
-                  position: "absolute",
+                  position: 'absolute',
                   top: -6,
                   right: 2,
-                  background: "red",
-                  color: "#fff",
-                  padding: "2px 6px",
+                  background: 'red',
+                  color: '#fff',
+                  padding: '2px 6px',
                   fontSize: 11,
                   borderRadius: 10,
                   fontWeight: 700,
@@ -255,11 +239,7 @@ const AdminLayout = ({ children }) => {
           />
 
           {/* Logout icon */}
-          <FaSignOutAlt
-            className="nav-icon"
-            onClick={onLogout}
-            title="Logout"
-          />
+          <FaSignOutAlt className="nav-icon" onClick={onLogout} title="Logout" />
         </div>
       </div>
 
@@ -269,18 +249,16 @@ const AdminLayout = ({ children }) => {
         <div className="sidebar">
           <div className="menu-title">MENU</div>
           <ul>
-            <li onClick={() => navigate("/admin-dashboard")}>Dashboard</li>
-            <li onClick={() => navigate("/create-user")}>Create User</li>
-            <li onClick={() => navigate("/admin/users")}>Manage Users</li>
-            <li onClick={() => navigate("/admin-experiments")}>Experiments</li>
-            <li onClick={() => navigate("/admin/logs")}>Logs</li>
+            <li onClick={() => navigate('/admin-dashboard')}>Dashboard</li>
+            <li onClick={() => navigate('/create-user')}>Create User</li>
+            <li onClick={() => navigate('/admin/users')}>Manage Users</li>
+            <li onClick={() => navigate('/admin-experiments')}>Experiments</li>
+            <li onClick={() => navigate('/admin/logs')}>Logs</li>
 
             {/* ✅ goes to /admin/experiment-files/1 which matches route /admin/experiment-files/:id */}
-            <li onClick={() => navigate("/admin/experiment-files/1")}>
-              Experiment Files
-            </li>
+            <li onClick={() => navigate('/admin/experiment-files/1')}>Experiment Files</li>
 
-            <li onClick={() => navigate("/settings")}>Settings</li>
+            <li onClick={() => navigate('/settings')}>Settings</li>
           </ul>
         </div>
 
@@ -289,23 +267,21 @@ const AdminLayout = ({ children }) => {
       </div>
 
       {/* FOOTER */}
-      <div className="footer">
-        © {new Date().getFullYear()} Quantum Neuton. All Rights Reserved.
-      </div>
+      <div className="footer">© {new Date().getFullYear()} Quantum Neuton. All Rights Reserved.</div>
 
       {/* ===== NOTIFICATIONS PANEL (popover) ===== */}
       {notifOpen && (
         <div
           id="notif-panel"
           style={{
-            position: "fixed",
+            position: 'fixed',
             top: 64,
             right: 80,
             width: 360,
-            maxHeight: "60vh",
-            overflowY: "auto",
-            background: "#fff",
-            boxShadow: "0 6px 18px rgba(0,0,0,0.12)",
+            maxHeight: '60vh',
+            overflowY: 'auto',
+            background: '#fff',
+            boxShadow: '0 6px 18px rgba(0,0,0,0.12)',
             borderRadius: 8,
             zIndex: 12000,
             padding: 12,
@@ -314,9 +290,9 @@ const AdminLayout = ({ children }) => {
         >
           <div
             style={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
               marginBottom: 8,
             }}
           >
@@ -324,9 +300,9 @@ const AdminLayout = ({ children }) => {
             <button
               onClick={closeNotifications}
               style={{
-                background: "transparent",
-                border: "none",
-                cursor: "pointer",
+                background: 'transparent',
+                border: 'none',
+                cursor: 'pointer',
               }}
             >
               ✕
@@ -336,7 +312,7 @@ const AdminLayout = ({ children }) => {
           {loadingNotifs ? (
             <div>Loading...</div>
           ) : notifications.length === 0 ? (
-            <div style={{ padding: 12, color: "#666" }}>No notifications</div>
+            <div style={{ padding: 12, color: '#666' }}>No notifications</div>
           ) : (
             notifications.map((n) => (
               <div
@@ -344,9 +320,9 @@ const AdminLayout = ({ children }) => {
                 style={{
                   padding: 10,
                   borderRadius: 6,
-                  background: n.is_read ? "#f9fafb" : "#eef6ff",
+                  background: n.is_read ? '#f9fafb' : '#eef6ff',
                   marginBottom: 8,
-                  cursor: n.link ? "pointer" : "default",
+                  cursor: n.link ? 'pointer' : 'default',
                 }}
                 onClick={() => {
                   if (n.link) openNotificationLink(n.link);
@@ -354,24 +330,18 @@ const AdminLayout = ({ children }) => {
               >
                 <div
                   style={{
-                    display: "flex",
-                    justifyContent: "space-between",
+                    display: 'flex',
+                    justifyContent: 'space-between',
                     gap: 8,
                   }}
                 >
                   <div style={{ fontWeight: 600 }}>{n.title}</div>
-                  <div style={{ fontSize: 12, color: "#666" }}>
-                    {n.created_at
-                      ? new Date(n.created_at).toLocaleString()
-                      : ""}
-                  </div>
+                  <div style={{ fontSize: 12, color: '#666' }}>{n.created_at ? new Date(n.created_at).toLocaleString() : ''}</div>
                 </div>
 
-                {n.message && (
-                  <div style={{ marginTop: 6, fontSize: 14 }}>{n.message}</div>
-                )}
+                {n.message && <div style={{ marginTop: 6, fontSize: 14 }}>{n.message}</div>}
 
-                <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
+                <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
                   {n.link && (
                     <button
                       type="button"
@@ -408,12 +378,12 @@ const AdminLayout = ({ children }) => {
         <div
           id="profile-panel"
           style={{
-            position: "fixed",
+            position: 'fixed',
             top: 64,
             right: 20,
             width: 320,
-            background: "#fff",
-            boxShadow: "0 6px 18px rgba(0,0,0,0.12)",
+            background: '#fff',
+            boxShadow: '0 6px 18px rgba(0,0,0,0.12)',
             borderRadius: 8,
             zIndex: 12000,
             padding: 16,
@@ -422,18 +392,18 @@ const AdminLayout = ({ children }) => {
         >
           <div
             style={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
             }}
           >
             <strong>Profile</strong>
             <button
               onClick={closeProfile}
               style={{
-                background: "transparent",
-                border: "none",
-                cursor: "pointer",
+                background: 'transparent',
+                border: 'none',
+                cursor: 'pointer',
               }}
             >
               ✕
@@ -442,10 +412,10 @@ const AdminLayout = ({ children }) => {
 
           <div
             style={{
-              display: "flex",
+              display: 'flex',
               gap: 12,
               marginTop: 12,
-              alignItems: "center",
+              alignItems: 'center',
             }}
           >
             <img
@@ -455,30 +425,27 @@ const AdminLayout = ({ children }) => {
                 width: 64,
                 height: 64,
                 borderRadius: 8,
-                objectFit: "cover",
+                objectFit: 'cover',
               }}
             />
             <div>
               <div style={{ fontWeight: 700 }}>{profile.name}</div>
-              <div style={{ color: "#666", fontSize: 13 }}>{profile.email}</div>
-              <div style={{ color: "#666", fontSize: 12 }}>{profile.role}</div>
+              <div style={{ color: '#666', fontSize: 13 }}>{profile.email}</div>
+              <div style={{ color: '#666', fontSize: 12 }}>{profile.role}</div>
             </div>
           </div>
 
-          <div style={{ marginTop: 12, display: "flex", gap: 8 }}>
+          <div style={{ marginTop: 12, display: 'flex', gap: 8 }}>
             <button
               onClick={() => {
                 closeProfile();
-                navigate("/settings");
+                navigate('/settings');
               }}
               className="btn btn-sm btn-primary"
             >
               Settings
             </button>
-            <button
-              onClick={onLogout}
-              className="btn btn-sm btn-outline-danger"
-            >
+            <button onClick={onLogout} className="btn btn-sm btn-outline-danger">
               Logout
             </button>
           </div>

@@ -1,32 +1,30 @@
 // src/pages/AdminUsers.jsx
-import React, { useEffect, useState } from "react";
-import api from "../../api";
+import React, { useEffect, useState } from 'react';
+import api from '../../api';
 
 function AdminUsers() {
   const [users, setUsers] = useState([]);
 
   const loadUsers = async () => {
     try {
-      const res = await api.get("/admin/users");
+      const res = await api.get('/admin/users');
       setUsers(Array.isArray(res.data) ? res.data : []);
     } catch (err) {
-      console.log("Error loading users:", err);
+      console.log('Error loading users:', err);
     }
   };
 
   const toggleStatus = async (id, currentStatus) => {
     try {
-      const newStatus = currentStatus === "active" ? "inactive" : "active";
+      const newStatus = currentStatus === 'active' ? 'inactive' : 'active';
 
       await api.put(`/admin/toggle-status/${id}`, {
         status: newStatus,
       });
 
-      setUsers((prev) =>
-        prev.map((u) => (u.id === id ? { ...u, status: newStatus } : u)),
-      );
+      setUsers((prev) => prev.map((u) => (u.id === id ? { ...u, status: newStatus } : u)));
     } catch (err) {
-      console.log("Status update failed:", err);
+      console.log('Status update failed:', err);
     }
   };
 
@@ -35,9 +33,9 @@ function AdminUsers() {
   }, []);
 
   return (
-    <div style={{ padding: "20px" }}>
+    <div style={{ padding: '20px' }}>
       <h2>All Users</h2>
-      <table border="1" cellPadding="8" style={{ width: "100%" }}>
+      <table border="1" cellPadding="8" style={{ width: '100%' }}>
         <thead>
           <tr>
             <th>ID</th>
@@ -57,9 +55,7 @@ function AdminUsers() {
               <td>{u.role}</td>
               <td>{u.status}</td>
               <td>
-                <button onClick={() => toggleStatus(u.id, u.status)}>
-                  {u.status === "active" ? "Deactivate" : "Activate"}
-                </button>
+                <button onClick={() => toggleStatus(u.id, u.status)}>{u.status === 'active' ? 'Deactivate' : 'Activate'}</button>
               </td>
             </tr>
           ))}

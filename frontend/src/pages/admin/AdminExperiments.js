@@ -1,29 +1,27 @@
 // src/pages/admin/AdminExperiments.js
-import React, { useEffect, useState } from "react";
-import AdminLayout from "../../components/AdminLayout";
-import api from "../../api";
+import React, { useEffect, useState } from 'react';
+import AdminLayout from '../../components/AdminLayout';
+import api from '../../api';
 
-const API_BASE =
-  (api.defaults?.baseURL && api.defaults.baseURL.replace(/\/$/, "")) ||
-  window.location.origin;
+const API_BASE = (api.defaults?.baseURL && api.defaults.baseURL.replace(/\/$/, '')) || window.location.origin;
 
 const AdminExperiments = () => {
   const [users, setUsers] = useState([]);
   const [experiments, setExperiments] = useState([]);
   const [form, setForm] = useState({
-    title: "",
-    description: "",
-    assigned_to: "",
+    title: '',
+    description: '',
+    assigned_to: '',
   });
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
 
   // for files viewer (now below, full-width)
   const [selectedExp, setSelectedExp] = useState(null);
   const [files, setFiles] = useState([]);
   const [filesLoading, setFilesLoading] = useState(false);
-  const [filesError, setFilesError] = useState("");
+  const [filesError, setFilesError] = useState('');
   const [previewFile, setPreviewFile] = useState(null);
   const [reportDetails, setReportDetails] = useState(null); // report from user
   const [showReportModal, setShowReportModal] = useState(false); // modal
@@ -31,9 +29,9 @@ const AdminExperiments = () => {
   // NEW: edit popup state
   const [showEditModal, setShowEditModal] = useState(false);
   const [editForm, setEditForm] = useState({
-    id: "",
-    title: "",
-    description: "",
+    id: '',
+    title: '',
+    description: '',
   });
   const [editLoading, setEditLoading] = useState(false);
   useEffect(() => {
@@ -45,28 +43,28 @@ const AdminExperiments = () => {
   // auto hide success
   useEffect(() => {
     if (!success) return;
-    const t = setTimeout(() => setSuccess(""), 3000);
+    const t = setTimeout(() => setSuccess(''), 3000);
     return () => clearTimeout(t);
   }, [success]);
 
   const fetchUsers = async () => {
     try {
-      const res = await api.get("/admin/users");
-      const nonAdminUsers = res.data.filter((u) => u.role !== "admin");
+      const res = await api.get('/admin/users');
+      const nonAdminUsers = res.data.filter((u) => u.role !== 'admin');
       setUsers(nonAdminUsers);
     } catch (err) {
-      console.error("Load users error:", err.response?.data || err);
-      setError(err.response?.data?.message || "Failed to load users");
+      console.error('Load users error:', err.response?.data || err);
+      setError(err.response?.data?.message || 'Failed to load users');
     }
   };
 
   const fetchExperiments = async () => {
     try {
-      const res = await api.get("/admin/experiments");
+      const res = await api.get('/admin/experiments');
       setExperiments(res.data);
     } catch (err) {
-      console.error("Load experiments error:", err.response?.data || err);
-      setError(err.response?.data?.message || "Failed to load experiments");
+      console.error('Load experiments error:', err.response?.data || err);
+      setError(err.response?.data?.message || 'Failed to load experiments');
     }
   };
 
@@ -77,27 +75,27 @@ const AdminExperiments = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError("");
-    setSuccess("");
+    setError('');
+    setSuccess('');
 
     if (!form.title.trim()) {
-      setError("Title is required");
+      setError('Title is required');
       return;
     }
 
     setLoading(true);
     try {
-      await api.post("/admin/experiments", {
+      await api.post('/admin/experiments', {
         title: form.title,
         description: form.description,
         assigned_to: form.assigned_to || null,
       });
-      setSuccess("Experiment created successfully");
-      setForm({ title: "", description: "", assigned_to: "" });
+      setSuccess('Experiment created successfully');
+      setForm({ title: '', description: '', assigned_to: '' });
       fetchExperiments();
     } catch (err) {
-      console.error("Create experiment error:", err.response?.data || err);
-      setError(err.response?.data?.message || "Failed to create experiment");
+      console.error('Create experiment error:', err.response?.data || err);
+      setError(err.response?.data?.message || 'Failed to create experiment');
     } finally {
       setLoading(false);
     }
@@ -105,62 +103,62 @@ const AdminExperiments = () => {
 
   const handleStatusUpdate = async (id, newStatus) => {
     if (!newStatus) return;
-    setError("");
-    setSuccess("");
+    setError('');
+    setSuccess('');
     try {
       await api.put(`/admin/experiments/${id}/status`, { status: newStatus });
-      setSuccess("Status updated");
+      setSuccess('Status updated');
       fetchExperiments();
     } catch (err) {
-      console.error("Update status error:", err.response?.data || err);
-      setError(err.response?.data?.message || "Failed to update status");
+      console.error('Update status error:', err.response?.data || err);
+      setError(err.response?.data?.message || 'Failed to update status');
     }
   };
 
   const handleAssignUpdate = async (id, assignedTo) => {
-    setError("");
-    setSuccess("");
+    setError('');
+    setSuccess('');
     try {
       await api.put(`/admin/experiments/${id}/assign`, {
         assigned_to: assignedTo || null,
       });
-      setSuccess("Assignment updated");
+      setSuccess('Assignment updated');
       fetchExperiments();
     } catch (err) {
-      console.error("Update assign error:", err.response?.data || err);
-      setError(err.response?.data?.message || "Failed to update assignment");
+      console.error('Update assign error:', err.response?.data || err);
+      setError(err.response?.data?.message || 'Failed to update assignment');
     }
   };
 
   const getStatusStyles = (status) => {
     const base = {
-      display: "inline-flex",
-      alignItems: "center",
-      justifyContent: "center",
-      padding: "2px 8px",
+      display: 'inline-flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: '2px 8px',
       borderRadius: 999,
       fontSize: 12,
-      textTransform: "capitalize",
+      textTransform: 'capitalize',
     };
 
     switch (status) {
-      case "pending":
-        return { ...base, background: "#fef3c7", color: "#92400e" };
-      case "active":
-        return { ...base, background: "#dbeafe", color: "#1d4ed8" };
-      case "done":
-        return { ...base, background: "#dcfce7", color: "#166534" };
-      case "approved":
-        return { ...base, background: "#e0f2fe", color: "#0369a1" };
+      case 'pending':
+        return { ...base, background: '#fef3c7', color: '#92400e' };
+      case 'active':
+        return { ...base, background: '#dbeafe', color: '#1d4ed8' };
+      case 'done':
+        return { ...base, background: '#dcfce7', color: '#166534' };
+      case 'approved':
+        return { ...base, background: '#e0f2fe', color: '#0369a1' };
       default:
-        return { ...base, background: "#e5e7eb", color: "#374151" };
+        return { ...base, background: '#e5e7eb', color: '#374151' };
     }
   };
 
-  const statusOptions = ["pending", "active", "done", "approved"];
+  const statusOptions = ['pending', 'active', 'done', 'approved'];
 
   const formatSize = (bytes) => {
-    if (!bytes && bytes !== 0) return "-";
+    if (!bytes && bytes !== 0) return '-';
     const mb = bytes / (1024 * 1024);
     if (mb < 1) return `${(bytes / 1024).toFixed(1)} KB`;
     return `${mb.toFixed(2)} MB`;
@@ -170,27 +168,19 @@ const AdminExperiments = () => {
   const handleViewFiles = async (exp) => {
     setSelectedExp(exp);
     setFiles([]);
-    setFilesError("");
+    setFilesError('');
     setFilesLoading(true);
     setPreviewFile(null);
     setReportDetails(null);
     setShowReportModal(false);
 
     try {
-      const [filesRes, reportRes] = await Promise.all([
-        api.get(`/experiments/${exp.id}/files`),
-        api.get(`/experiments/${exp.id}/report`),
-      ]);
+      const [filesRes, reportRes] = await Promise.all([api.get(`/experiments/${exp.id}/files`), api.get(`/experiments/${exp.id}/report`)]);
       setFiles(filesRes.data);
       setReportDetails(reportRes.data); // can be null
     } catch (err) {
-      console.error(
-        "Admin load files/report error:",
-        err.response?.data || err,
-      );
-      setFilesError(
-        err.response?.data?.message || "Failed to load files or report",
-      );
+      console.error('Admin load files/report error:', err.response?.data || err);
+      setFilesError(err.response?.data?.message || 'Failed to load files or report');
     } finally {
       setFilesLoading(false);
     }
@@ -199,7 +189,7 @@ const AdminExperiments = () => {
   const handleCloseFiles = () => {
     setSelectedExp(null);
     setFiles([]);
-    setFilesError("");
+    setFilesError('');
     setFilesLoading(false);
     setPreviewFile(null);
     setReportDetails(null);
@@ -207,14 +197,14 @@ const AdminExperiments = () => {
   };
 
   // flag for approved status in files viewer
-  const isSelectedApproved = selectedExp && selectedExp.status === "approved";
+  const isSelectedApproved = selectedExp && selectedExp.status === 'approved';
 
   // NEW: approve directly from the files/report area
   const handleApproveFromViewer = async () => {
     if (!selectedExp || isSelectedApproved) return;
-    await handleStatusUpdate(selectedExp.id, "approved");
+    await handleStatusUpdate(selectedExp.id, 'approved');
     // update local selectedExp so the banner changes immediately
-    setSelectedExp((prev) => (prev ? { ...prev, status: "approved" } : prev));
+    setSelectedExp((prev) => (prev ? { ...prev, status: 'approved' } : prev));
   };
 
   // ---------- NEW: EDIT POPUP + DELETE LOGIC ----------
@@ -222,8 +212,8 @@ const AdminExperiments = () => {
   const openEditModal = (exp) => {
     setEditForm({
       id: exp.id,
-      title: exp.title || "",
-      description: exp.description || "",
+      title: exp.title || '',
+      description: exp.description || '',
     });
     setShowEditModal(true);
   };
@@ -241,12 +231,12 @@ const AdminExperiments = () => {
   const handleEditSubmit = async (e) => {
     e.preventDefault();
     if (!editForm.title.trim()) {
-      setError("Title is required");
+      setError('Title is required');
       return;
     }
 
-    setError("");
-    setSuccess("");
+    setError('');
+    setSuccess('');
     setEditLoading(true);
 
     try {
@@ -254,7 +244,7 @@ const AdminExperiments = () => {
         title: editForm.title,
         description: editForm.description,
       });
-      setSuccess("Experiment updated");
+      setSuccess('Experiment updated');
       setShowEditModal(false);
       fetchExperiments();
       // if currently selected in viewer, update its title/description locally
@@ -265,42 +255,36 @@ const AdminExperiments = () => {
               title: editForm.title,
               description: editForm.description,
             }
-          : prev,
+          : prev
       );
     } catch (err) {
-      console.error("Edit experiment error:", err.response?.data || err);
-      setError(err.response?.data?.message || "Failed to update experiment");
+      console.error('Edit experiment error:', err.response?.data || err);
+      setError(err.response?.data?.message || 'Failed to update experiment');
     } finally {
       setEditLoading(false);
     }
   };
 
   const handleDeleteExperiment = async (id) => {
-    if (
-      !window.confirm(
-        "Are you sure you want to delete this experiment? This action cannot be undone.",
-      )
-    )
-      return;
+    if (!window.confirm('Are you sure you want to delete this experiment? This action cannot be undone.')) return;
 
-    setError("");
-    setSuccess("");
+    setError('');
+    setSuccess('');
 
     try {
       await api.delete(`/admin/experiments/${id}`);
-      setSuccess("Experiment deleted");
+      setSuccess('Experiment deleted');
       // if this experiment is open in viewer, close it
       setSelectedExp((prev) => (prev && prev.id === id ? null : prev));
       fetchExperiments();
     } catch (err) {
-      console.error("Delete experiment error:", err.response?.data || err);
-      setError(err.response?.data?.message || "Failed to delete experiment");
+      console.error('Delete experiment error:', err.response?.data || err);
+      setError(err.response?.data?.message || 'Failed to delete experiment');
     }
   };
 
   // ===== DOWNLOAD URL (correct way) =====
-  const getDownloadUrl = (file) =>
-    `${API_BASE}/uploads/experiments/${file.experiment_id}/${file.stored_name}`;
+  const getDownloadUrl = (file) => `${API_BASE}/uploads/experiments/${file.experiment_id}/${file.stored_name}`;
 
   // ---------------------------------------------------
 
@@ -309,9 +293,9 @@ const AdminExperiments = () => {
       <div
         style={{
           padding: 24,
-          background: "#f3f4f6",
-          minHeight: "100vh",
-          boxSizing: "border-box",
+          background: '#f3f4f6',
+          minHeight: '100vh',
+          boxSizing: 'border-box',
         }}
       >
         {/* Page header */}
@@ -321,14 +305,13 @@ const AdminExperiments = () => {
               margin: 0,
               fontSize: 22,
               fontWeight: 600,
-              color: "#111827",
+              color: '#111827',
             }}
           >
             Experiments
           </h2>
-          <p style={{ margin: "4px 0 0", fontSize: 13, color: "#6b7280" }}>
-            Create experiments, assign them to users, track status and view
-            submitted reports.
+          <p style={{ margin: '4px 0 0', fontSize: 13, color: '#6b7280' }}>
+            Create experiments, assign them to users, track status and view submitted reports.
           </p>
         </div>
 
@@ -339,10 +322,10 @@ const AdminExperiments = () => {
               marginBottom: 12,
               padding: 10,
               borderRadius: 6,
-              background: "#fee2e2",
-              color: "#991b1b",
+              background: '#fee2e2',
+              color: '#991b1b',
               fontSize: 13,
-              border: "1px solid #fecaca",
+              border: '1px solid #fecaca',
             }}
           >
             {error}
@@ -354,10 +337,10 @@ const AdminExperiments = () => {
               marginBottom: 12,
               padding: 10,
               borderRadius: 6,
-              background: "#dcfce7",
-              color: "#166534",
+              background: '#dcfce7',
+              color: '#166534',
               fontSize: 13,
-              border: "1px solid #bbf7d0",
+              border: '1px solid #bbf7d0',
             }}
           >
             {success}
@@ -365,22 +348,22 @@ const AdminExperiments = () => {
         )}
 
         {/* Form + experiments list, now vertical (table below form) */}
-        <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
           {/* Create / Assign Form */}
           <div
             style={{
               padding: 18,
               borderRadius: 12,
-              border: "1px solid #e5e7eb",
-              background: "#ffffff",
-              boxShadow: "0 1px 2px rgba(15, 23, 42, 0.04)",
+              border: '1px solid #e5e7eb',
+              background: '#ffffff',
+              boxShadow: '0 1px 2px rgba(15, 23, 42, 0.04)',
             }}
           >
             <div
               style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
                 marginBottom: 10,
               }}
             >
@@ -389,7 +372,7 @@ const AdminExperiments = () => {
                   margin: 0,
                   fontSize: 16,
                   fontWeight: 600,
-                  color: "#111827",
+                  color: '#111827',
                 }}
               >
                 Create &amp; Assign Experiment
@@ -397,11 +380,11 @@ const AdminExperiments = () => {
               <span
                 style={{
                   fontSize: 11,
-                  color: "#6b7280",
-                  background: "#f9fafb",
-                  padding: "2px 8px",
+                  color: '#6b7280',
+                  background: '#f9fafb',
+                  padding: '2px 8px',
                   borderRadius: 999,
-                  border: "1px solid #e5e7eb",
+                  border: '1px solid #e5e7eb',
                 }}
               >
                 Admin action
@@ -412,14 +395,14 @@ const AdminExperiments = () => {
               <div style={{ marginBottom: 12 }}>
                 <label
                   style={{
-                    display: "block",
+                    display: 'block',
                     marginBottom: 4,
                     fontSize: 13,
                     fontWeight: 500,
-                    color: "#374151",
+                    color: '#374151',
                   }}
                 >
-                  Title <span style={{ color: "#ef4444" }}>*</span>
+                  Title <span style={{ color: '#ef4444' }}>*</span>
                 </label>
                 <input
                   type="text"
@@ -427,12 +410,12 @@ const AdminExperiments = () => {
                   value={form.title}
                   onChange={handleChange}
                   style={{
-                    width: "100%",
-                    padding: "8px 10px",
+                    width: '100%',
+                    padding: '8px 10px',
                     borderRadius: 8,
-                    border: "1px solid #d1d5db",
+                    border: '1px solid #d1d5db',
                     fontSize: 13,
-                    outline: "none",
+                    outline: 'none',
                   }}
                   placeholder="Enter experiment title"
                 />
@@ -441,11 +424,11 @@ const AdminExperiments = () => {
               <div style={{ marginBottom: 12 }}>
                 <label
                   style={{
-                    display: "block",
+                    display: 'block',
                     marginBottom: 4,
                     fontSize: 13,
                     fontWeight: 500,
-                    color: "#374151",
+                    color: '#374151',
                   }}
                 >
                   Description
@@ -456,13 +439,13 @@ const AdminExperiments = () => {
                   onChange={handleChange}
                   rows={4}
                   style={{
-                    width: "100%",
-                    padding: "8px 10px",
+                    width: '100%',
+                    padding: '8px 10px',
                     borderRadius: 8,
-                    border: "1px solid #d1d5db",
+                    border: '1px solid #d1d5db',
                     fontSize: 13,
-                    resize: "vertical",
-                    outline: "none",
+                    resize: 'vertical',
+                    outline: 'none',
                   }}
                   placeholder="Add instructions or details for the user"
                 />
@@ -471,11 +454,11 @@ const AdminExperiments = () => {
               <div style={{ marginBottom: 16 }}>
                 <label
                   style={{
-                    display: "block",
+                    display: 'block',
                     marginBottom: 4,
                     fontSize: 13,
                     fontWeight: 500,
-                    color: "#374151",
+                    color: '#374151',
                   }}
                 >
                   Assign to User
@@ -485,13 +468,13 @@ const AdminExperiments = () => {
                   value={form.assigned_to}
                   onChange={handleChange}
                   style={{
-                    width: "100%",
-                    padding: "8px 10px",
+                    width: '100%',
+                    padding: '8px 10px',
                     borderRadius: 8,
-                    border: "1px solid #d1d5db",
+                    border: '1px solid #d1d5db',
                     fontSize: 13,
-                    background: "#ffffff",
-                    outline: "none",
+                    background: '#ffffff',
+                    outline: 'none',
                   }}
                 >
                   <option value="">-- Not assigned --</option>
@@ -501,29 +484,25 @@ const AdminExperiments = () => {
                     </option>
                   ))}
                 </select>
-                <p
-                  style={{ margin: "4px 0 0", fontSize: 11, color: "#9ca3af" }}
-                >
-                  You can leave this empty and assign later.
-                </p>
+                <p style={{ margin: '4px 0 0', fontSize: 11, color: '#9ca3af' }}>You can leave this empty and assign later.</p>
               </div>
 
               <button
                 type="submit"
                 disabled={loading}
                 style={{
-                  padding: "8px 16px",
+                  padding: '8px 16px',
                   borderRadius: 999,
-                  border: "none",
-                  background: loading ? "#818cf8" : "#4f46e5",
-                  color: "white",
+                  border: 'none',
+                  background: loading ? '#818cf8' : '#4f46e5',
+                  color: 'white',
                   fontSize: 13,
                   fontWeight: 500,
-                  cursor: loading ? "not-allowed" : "pointer",
-                  boxShadow: "0 1px 2px rgba(15,23,42,0.15)",
+                  cursor: loading ? 'not-allowed' : 'pointer',
+                  boxShadow: '0 1px 2px rgba(15,23,42,0.15)',
                 }}
               >
-                {loading ? "Saving..." : "Create Experiment"}
+                {loading ? 'Saving...' : 'Create Experiment'}
               </button>
             </form>
           </div>
@@ -533,16 +512,16 @@ const AdminExperiments = () => {
             style={{
               padding: 18,
               borderRadius: 12,
-              border: "1px solid #e5e7eb",
-              background: "#ffffff",
-              boxShadow: "0 1px 2px rgba(15, 23, 42, 0.04)",
+              border: '1px solid #e5e7eb',
+              background: '#ffffff',
+              boxShadow: '0 1px 2px rgba(15, 23, 42, 0.04)',
             }}
           >
             <div
               style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
                 marginBottom: 10,
               }}
             >
@@ -551,38 +530,34 @@ const AdminExperiments = () => {
                   margin: 0,
                   fontSize: 16,
                   fontWeight: 600,
-                  color: "#111827",
+                  color: '#111827',
                 }}
               >
                 All Experiments
               </h3>
-              <span style={{ fontSize: 11, color: "#6b7280" }}>
-                Latest first
-              </span>
+              <span style={{ fontSize: 11, color: '#6b7280' }}>Latest first</span>
             </div>
 
             {experiments.length === 0 ? (
-              <p style={{ color: "#6b7280", fontSize: 13, marginTop: 8 }}>
-                No experiments yet. Start by creating one above.
-              </p>
+              <p style={{ color: '#6b7280', fontSize: 13, marginTop: 8 }}>No experiments yet. Start by creating one above.</p>
             ) : (
-              <div style={{ overflowX: "auto" }}>
+              <div style={{ overflowX: 'auto' }}>
                 <table
                   style={{
-                    width: "100%",
-                    borderCollapse: "collapse",
+                    width: '100%',
+                    borderCollapse: 'collapse',
                     fontSize: 13,
                   }}
                 >
                   <thead>
-                    <tr style={{ background: "#f9fafb" }}>
+                    <tr style={{ background: '#f9fafb' }}>
                       <th
                         style={{
-                          borderBottom: "1px solid #e5e7eb",
+                          borderBottom: '1px solid #e5e7eb',
                           padding: 8,
-                          textAlign: "left",
+                          textAlign: 'left',
                           fontWeight: 500,
-                          color: "#6b7280",
+                          color: '#6b7280',
                           fontSize: 12,
                         }}
                       >
@@ -590,11 +565,11 @@ const AdminExperiments = () => {
                       </th>
                       <th
                         style={{
-                          borderBottom: "1px solid #e5e7eb",
+                          borderBottom: '1px solid #e5e7eb',
                           padding: 8,
-                          textAlign: "left",
+                          textAlign: 'left',
                           fontWeight: 500,
-                          color: "#6b7280",
+                          color: '#6b7280',
                           fontSize: 12,
                         }}
                       >
@@ -602,24 +577,24 @@ const AdminExperiments = () => {
                       </th>
                       <th
                         style={{
-                          borderBottom: "1px solid #e5e7eb",
+                          borderBottom: '1px solid #e5e7eb',
                           padding: 8,
-                          textAlign: "left",
+                          textAlign: 'left',
                           fontWeight: 500,
-                          color: "#6b7280",
+                          color: '#6b7280',
                           fontSize: 12,
-                          width: "30%",
+                          width: '30%',
                         }}
                       >
                         Description
                       </th>
                       <th
                         style={{
-                          borderBottom: "1px solid #e5e7eb",
+                          borderBottom: '1px solid #e5e7eb',
                           padding: 8,
-                          textAlign: "left",
+                          textAlign: 'left',
                           fontWeight: 500,
-                          color: "#6b7280",
+                          color: '#6b7280',
                           fontSize: 12,
                         }}
                       >
@@ -627,11 +602,11 @@ const AdminExperiments = () => {
                       </th>
                       <th
                         style={{
-                          borderBottom: "1px solid #e5e7eb",
+                          borderBottom: '1px solid #e5e7eb',
                           padding: 8,
-                          textAlign: "left",
+                          textAlign: 'left',
                           fontWeight: 500,
-                          color: "#6b7280",
+                          color: '#6b7280',
                           fontSize: 12,
                         }}
                       >
@@ -639,11 +614,11 @@ const AdminExperiments = () => {
                       </th>
                       <th
                         style={{
-                          borderBottom: "1px solid #e5e7eb",
+                          borderBottom: '1px solid #e5e7eb',
                           padding: 8,
-                          textAlign: "left",
+                          textAlign: 'left',
                           fontWeight: 500,
-                          color: "#6b7280",
+                          color: '#6b7280',
                           fontSize: 12,
                         }}
                       >
@@ -652,11 +627,11 @@ const AdminExperiments = () => {
                       {/* NEW Actions column */}
                       <th
                         style={{
-                          borderBottom: "1px solid #e5e7eb",
+                          borderBottom: '1px solid #e5e7eb',
                           padding: 8,
-                          textAlign: "left",
+                          textAlign: 'left',
                           fontWeight: 500,
-                          color: "#6b7280",
+                          color: '#6b7280',
                           fontSize: 12,
                         }}
                       >
@@ -664,11 +639,11 @@ const AdminExperiments = () => {
                       </th>
                       <th
                         style={{
-                          borderBottom: "1px solid #e5e7eb",
+                          borderBottom: '1px solid #e5e7eb',
                           padding: 8,
-                          textAlign: "left",
+                          textAlign: 'left',
                           fontWeight: 500,
-                          color: "#6b7280",
+                          color: '#6b7280',
                           fontSize: 12,
                         }}
                       >
@@ -678,28 +653,23 @@ const AdminExperiments = () => {
                   </thead>
                   <tbody>
                     {experiments.map((exp) => {
-                      const assignedUser = users.find(
-                        (u) => String(u.id) === String(exp.assigned_to),
-                      );
-                      const status = exp.status || "pending";
-                      const isLockedStatus =
-                        status === "done" || status === "approved";
+                      const assignedUser = users.find((u) => String(u.id) === String(exp.assigned_to));
+                      const status = exp.status || 'pending';
+                      const isLockedStatus = status === 'done' || status === 'approved';
 
                       return (
                         <tr
                           key={exp.id}
                           style={{
-                            borderBottom: "1px solid #f3f4f6",
-                            transition: "background 0.12s ease",
+                            borderBottom: '1px solid #f3f4f6',
+                            transition: 'background 0.12s ease',
                           }}
                         >
-                          <td style={{ padding: 8, color: "#4b5563" }}>
-                            {exp.id}
-                          </td>
+                          <td style={{ padding: 8, color: '#4b5563' }}>{exp.id}</td>
                           <td
                             style={{
                               padding: 8,
-                              color: "#111827",
+                              color: '#111827',
                               fontWeight: 500,
                             }}
                           >
@@ -708,40 +678,36 @@ const AdminExperiments = () => {
                           <td
                             style={{
                               padding: 8,
-                              color: "#4b5563",
+                              color: '#4b5563',
                               maxWidth: 260,
-                              whiteSpace: "nowrap",
-                              textOverflow: "ellipsis",
-                              overflow: "hidden",
+                              whiteSpace: 'nowrap',
+                              textOverflow: 'ellipsis',
+                              overflow: 'hidden',
                             }}
-                            title={exp.description || ""}
+                            title={exp.description || ''}
                           >
-                            {exp.description || "-"}
+                            {exp.description || '-'}
                           </td>
                           <td style={{ padding: 8 }}>
                             <div
                               style={{
-                                display: "flex",
-                                alignItems: "center",
+                                display: 'flex',
+                                alignItems: 'center',
                                 gap: 8,
                               }}
                             >
-                              <span style={getStatusStyles(status)}>
-                                {status}
-                              </span>
+                              <span style={getStatusStyles(status)}>{status}</span>
                               {!isLockedStatus && (
                                 <select
                                   value={status}
-                                  onChange={(e) =>
-                                    handleStatusUpdate(exp.id, e.target.value)
-                                  }
+                                  onChange={(e) => handleStatusUpdate(exp.id, e.target.value)}
                                   style={{
-                                    padding: "4px 6px",
+                                    padding: '4px 6px',
                                     borderRadius: 999,
-                                    border: "1px solid #d1d5db",
+                                    border: '1px solid #d1d5db',
                                     fontSize: 11,
-                                    background: "#ffffff",
-                                    outline: "none",
+                                    background: '#ffffff',
+                                    outline: 'none',
                                   }}
                                 >
                                   {statusOptions.map((st) => (
@@ -755,44 +721,36 @@ const AdminExperiments = () => {
                           </td>
 
                           {/* Assigned To column */}
-                          <td style={{ padding: 8, color: "#4b5563" }}>
+                          <td style={{ padding: 8, color: '#4b5563' }}>
                             {exp.assigned_to ? (
                               <div
                                 style={{
-                                  display: "flex",
-                                  flexDirection: "column",
+                                  display: 'flex',
+                                  flexDirection: 'column',
                                   gap: 2,
                                 }}
                               >
                                 <span
                                   style={{
                                     fontWeight: 500,
-                                    color: "#111827",
+                                    color: '#111827',
                                   }}
                                 >
-                                  {assignedUser
-                                    ? `${assignedUser.name} (${assignedUser.email})`
-                                    : `User ID: ${exp.assigned_to}`}
+                                  {assignedUser ? `${assignedUser.name} (${assignedUser.email})` : `User ID: ${exp.assigned_to}`}
                                 </span>
-                                <span
-                                  style={{ fontSize: 11, color: "#9ca3af" }}
-                                >
-                                  Assigned
-                                </span>
+                                <span style={{ fontSize: 11, color: '#9ca3af' }}>Assigned</span>
                               </div>
                             ) : (
                               <select
-                                value={exp.assigned_to || ""}
-                                onChange={(e) =>
-                                  handleAssignUpdate(exp.id, e.target.value)
-                                }
+                                value={exp.assigned_to || ''}
+                                onChange={(e) => handleAssignUpdate(exp.id, e.target.value)}
                                 style={{
-                                  padding: "6px 8px",
+                                  padding: '6px 8px',
                                   borderRadius: 8,
-                                  border: "1px solid #d1d5db",
+                                  border: '1px solid #d1d5db',
                                   fontSize: 12,
-                                  background: "#ffffff",
-                                  outline: "none",
+                                  background: '#ffffff',
+                                  outline: 'none',
                                   minWidth: 180,
                                 }}
                               >
@@ -811,13 +769,13 @@ const AdminExperiments = () => {
                               type="button"
                               onClick={() => handleViewFiles(exp)}
                               style={{
-                                padding: "6px 10px",
+                                padding: '6px 10px',
                                 borderRadius: 999,
-                                border: "none",
-                                background: "#e5e7eb",
-                                color: "#374151",
+                                border: 'none',
+                                background: '#e5e7eb',
+                                color: '#374151',
                                 fontSize: 12,
-                                cursor: "pointer",
+                                cursor: 'pointer',
                               }}
                             >
                               View files
@@ -827,22 +785,20 @@ const AdminExperiments = () => {
                           {/* NEW Actions buttons with lock condition */}
                           <td style={{ padding: 8 }}>
                             {isLockedStatus ? (
-                              <span style={{ fontSize: 11, color: "#9ca3af" }}>
-                                Locked
-                              </span>
+                              <span style={{ fontSize: 11, color: '#9ca3af' }}>Locked</span>
                             ) : (
-                              <div style={{ display: "flex", gap: 6 }}>
+                              <div style={{ display: 'flex', gap: 6 }}>
                                 <button
                                   type="button"
                                   onClick={() => openEditModal(exp)}
                                   style={{
-                                    padding: "5px 10px",
+                                    padding: '5px 10px',
                                     borderRadius: 999,
-                                    border: "none",
-                                    background: "#4f46e5",
-                                    color: "#ffffff",
+                                    border: 'none',
+                                    background: '#4f46e5',
+                                    color: '#ffffff',
                                     fontSize: 11,
-                                    cursor: "pointer",
+                                    cursor: 'pointer',
                                   }}
                                 >
                                   Edit
@@ -851,13 +807,13 @@ const AdminExperiments = () => {
                                   type="button"
                                   onClick={() => handleDeleteExperiment(exp.id)}
                                   style={{
-                                    padding: "5px 10px",
+                                    padding: '5px 10px',
                                     borderRadius: 999,
-                                    border: "none",
-                                    background: "#ef4444",
-                                    color: "#ffffff",
+                                    border: 'none',
+                                    background: '#ef4444',
+                                    color: '#ffffff',
                                     fontSize: 11,
-                                    cursor: "pointer",
+                                    cursor: 'pointer',
                                   }}
                                 >
                                   Delete
@@ -869,13 +825,11 @@ const AdminExperiments = () => {
                           <td
                             style={{
                               padding: 8,
-                              color: "#4b5563",
+                              color: '#4b5563',
                               fontSize: 12,
                             }}
                           >
-                            {exp.created_at
-                              ? new Date(exp.created_at).toLocaleString()
-                              : "-"}
+                            {exp.created_at ? new Date(exp.created_at).toLocaleString() : '-'}
                           </td>
                         </tr>
                       );
@@ -894,16 +848,16 @@ const AdminExperiments = () => {
               marginTop: 20,
               padding: 18,
               borderRadius: 12,
-              border: "1px solid #e5e7eb",
-              background: "#ffffff",
-              boxShadow: "0 1px 2px rgba(15,23,42,0.04)",
+              border: '1px solid #e5e7eb',
+              background: '#ffffff',
+              boxShadow: '0 1px 2px rgba(15,23,42,0.04)',
             }}
           >
             <div
               style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
                 marginBottom: 8,
               }}
             >
@@ -913,16 +867,16 @@ const AdminExperiments = () => {
                     margin: 0,
                     fontSize: 14,
                     fontWeight: 600,
-                    color: "#111827",
+                    color: '#111827',
                   }}
                 >
                   Files for: {selectedExp.title}
                 </h4>
                 <p
                   style={{
-                    margin: "2px 0 0",
+                    margin: '2px 0 0',
                     fontSize: 12,
-                    color: "#6b7280",
+                    color: '#6b7280',
                   }}
                 >
                   Uploaded by assigned user when they completed the experiment.
@@ -930,13 +884,12 @@ const AdminExperiments = () => {
                 {isSelectedApproved && (
                   <p
                     style={{
-                      margin: "4px 0 0",
+                      margin: '4px 0 0',
                       fontSize: 11,
-                      color: "#9ca3af",
+                      color: '#9ca3af',
                     }}
                   >
-                    Status: <b>Approved</b> – user can no longer upload/delete
-                    files or edit the report.
+                    Status: <b>Approved</b> – user can no longer upload/delete files or edit the report.
                   </p>
                 )}
               </div>
@@ -944,13 +897,13 @@ const AdminExperiments = () => {
                 type="button"
                 onClick={handleCloseFiles}
                 style={{
-                  padding: "4px 10px",
+                  padding: '4px 10px',
                   borderRadius: 999,
-                  border: "none",
-                  background: "#e5e7eb",
-                  color: "#374151",
+                  border: 'none',
+                  background: '#e5e7eb',
+                  color: '#374151',
                   fontSize: 11,
-                  cursor: "pointer",
+                  cursor: 'pointer',
                 }}
               >
                 Close
@@ -964,7 +917,7 @@ const AdminExperiments = () => {
                   marginTop: 4,
                   marginBottom: 8,
                   fontSize: 12,
-                  color: "#374151",
+                  color: '#374151',
                 }}
               >
                 Experiment details form submitted by user.
@@ -976,7 +929,7 @@ const AdminExperiments = () => {
                   marginTop: 4,
                   marginBottom: 8,
                   fontSize: 12,
-                  color: "#9ca3af",
+                  color: '#9ca3af',
                 }}
               >
                 No experiment details form submitted yet.
@@ -989,10 +942,10 @@ const AdminExperiments = () => {
                   marginBottom: 8,
                   padding: 8,
                   borderRadius: 6,
-                  background: "#fee2e2",
-                  color: "#991b1b",
+                  background: '#fee2e2',
+                  color: '#991b1b',
                   fontSize: 12,
-                  border: "1px solid #fecaca",
+                  border: '1px solid #fecaca',
                 }}
               >
                 {filesError}
@@ -1000,87 +953,83 @@ const AdminExperiments = () => {
             )}
 
             {filesLoading ? (
-              <p style={{ fontSize: 12, color: "#6b7280", margin: 0 }}>
-                Loading files...
-              </p>
+              <p style={{ fontSize: 12, color: '#6b7280', margin: 0 }}>Loading files...</p>
             ) : files.length === 0 ? (
-              <p style={{ fontSize: 12, color: "#6b7280", margin: 0 }}>
-                No files uploaded for this experiment yet.
-              </p>
+              <p style={{ fontSize: 12, color: '#6b7280', margin: 0 }}>No files uploaded for this experiment yet.</p>
             ) : (
               <>
-                <div style={{ overflowX: "auto", marginTop: 4 }}>
+                <div style={{ overflowX: 'auto', marginTop: 4 }}>
                   <table
                     style={{
-                      width: "100%",
-                      borderCollapse: "collapse",
+                      width: '100%',
+                      borderCollapse: 'collapse',
                       fontSize: 12,
                     }}
                   >
                     <thead>
-                      <tr style={{ background: "#f9fafb" }}>
+                      <tr style={{ background: '#f9fafb' }}>
                         <th
                           style={{
-                            borderBottom: "1px solid #e5e7eb",
+                            borderBottom: '1px solid #e5e7eb',
                             padding: 6,
-                            textAlign: "left",
+                            textAlign: 'left',
                             fontWeight: 500,
-                            color: "#6b7280",
+                            color: '#6b7280',
                           }}
                         >
                           File
                         </th>
                         <th
                           style={{
-                            borderBottom: "1px solid #e5e7eb",
+                            borderBottom: '1px solid #e5e7eb',
                             padding: 6,
-                            textAlign: "left",
+                            textAlign: 'left',
                             fontWeight: 500,
-                            color: "#6b7280",
+                            color: '#6b7280',
                           }}
                         >
                           Size
                         </th>
                         <th
                           style={{
-                            borderBottom: "1px solid #e5e7eb",
+                            borderBottom: '1px solid #e5e7eb',
                             padding: 6,
-                            textAlign: "left",
+                            textAlign: 'left',
                             fontWeight: 500,
-                            color: "#6b7280",
+                            color: '#6b7280',
                           }}
                         >
                           Uploaded At
                         </th>
                         <th
                           style={{
-                            borderBottom: "1px solid #e5e7eb",
+                            borderBottom: '1px solid #e5e7eb',
                             padding: 6,
-                            textAlign: "left",
+                            textAlign: 'left',
                             fontWeight: 500,
-                            color: "#6b7280",
+                            color: '#6b7280',
                           }}
                         >
                           Preview
                         </th>
                         <th
                           style={{
-                            borderBottom: "1px solid #e5e7eb",
+                            borderBottom: '1px solid #e5e7eb',
                             padding: 6,
-                            textAlign: "left",
+                            textAlign: 'left',
                             fontWeight: 500,
-                            color: "#6b7280",
+                            color: '#6b7280',
                           }}
                         >
                           Download
                         </th>
                         <th
                           style={{
-                            borderBottom: "1px solid #e5e7eb",
+                            borderBottom: '1px solid #e5e7eb',
                             padding: 6,
-                            textAlign: "left",
+                            textAlign: 'left',
                             fontWeight: 500,
-                            color: "#6b7280",
+                            color: '#6b7280',
                           }}
                         >
                           Report
@@ -1090,25 +1039,16 @@ const AdminExperiments = () => {
                     <tbody>
                       {files.map((file, index) => {
                         const downloadUrl = getDownloadUrl(file);
-                        const ext = (
-                          file.original_name.split(".").pop() || ""
-                        ).toLowerCase();
-                        const canInlinePreview = [
-                          "pdf",
-                          "png",
-                          "jpg",
-                          "jpeg",
-                          "gif",
-                          "webp",
-                        ].includes(ext);
+                        const ext = (file.original_name.split('.').pop() || '').toLowerCase();
+                        const canInlinePreview = ['pdf', 'png', 'jpg', 'jpeg', 'gif', 'webp'].includes(ext);
 
                         return (
                           <tr key={file.id}>
                             <td
                               style={{
                                 padding: 6,
-                                borderBottom: "1px solid #f3f4f6",
-                                color: "#111827",
+                                borderBottom: '1px solid #f3f4f6',
+                                color: '#111827',
                               }}
                             >
                               {file.original_name}
@@ -1116,8 +1056,8 @@ const AdminExperiments = () => {
                             <td
                               style={{
                                 padding: 6,
-                                borderBottom: "1px solid #f3f4f6",
-                                color: "#4b5563",
+                                borderBottom: '1px solid #f3f4f6',
+                                color: '#4b5563',
                               }}
                             >
                               {formatSize(file.size)}
@@ -1125,19 +1065,17 @@ const AdminExperiments = () => {
                             <td
                               style={{
                                 padding: 6,
-                                borderBottom: "1px solid #f3f4f6",
-                                color: "#4b5563",
+                                borderBottom: '1px solid #f3f4f6',
+                                color: '#4b5563',
                               }}
                             >
-                              {file.uploaded_at
-                                ? new Date(file.uploaded_at).toLocaleString()
-                                : "-"}
+                              {file.uploaded_at ? new Date(file.uploaded_at).toLocaleString() : '-'}
                             </td>
                             <td
                               style={{
                                 padding: 6,
-                                borderBottom: "1px solid #f3f4f6",
-                                color: "#4b5563",
+                                borderBottom: '1px solid #f3f4f6',
+                                color: '#4b5563',
                               }}
                             >
                               {canInlinePreview ? (
@@ -1151,12 +1089,12 @@ const AdminExperiments = () => {
                                     })
                                   }
                                   style={{
-                                    padding: "4px 8px",
+                                    padding: '4px 8px',
                                     borderRadius: 999,
-                                    border: "1px solid #d1d5db",
-                                    background: "#f9fafb",
+                                    border: '1px solid #d1d5db',
+                                    background: '#f9fafb',
                                     fontSize: 11,
-                                    cursor: "pointer",
+                                    cursor: 'pointer',
                                   }}
                                 >
                                   View
@@ -1165,7 +1103,7 @@ const AdminExperiments = () => {
                                 <span
                                   style={{
                                     fontSize: 11,
-                                    color: "#9ca3af",
+                                    color: '#9ca3af',
                                   }}
                                 >
                                   Preview not supported, use Download
@@ -1175,8 +1113,8 @@ const AdminExperiments = () => {
                             <td
                               style={{
                                 padding: 6,
-                                borderBottom: "1px solid #f3f4f6",
-                                color: "#4b5563",
+                                borderBottom: '1px solid #f3f4f6',
+                                color: '#4b5563',
                               }}
                             >
                               <a
@@ -1185,8 +1123,8 @@ const AdminExperiments = () => {
                                 rel="noreferrer"
                                 style={{
                                   fontSize: 12,
-                                  textDecoration: "none",
-                                  color: "#2563eb",
+                                  textDecoration: 'none',
+                                  color: '#2563eb',
                                 }}
                               >
                                 Download
@@ -1195,23 +1133,23 @@ const AdminExperiments = () => {
                             <td
                               style={{
                                 padding: 6,
-                                borderBottom: "1px solid #f3f4f6",
-                                color: "#4b5563",
+                                borderBottom: '1px solid #f3f4f6',
+                                color: '#4b5563',
                               }}
                             >
                               {reportDetails && (
-                                <div style={{ display: "flex", gap: 6 }}>
+                                <div style={{ display: 'flex', gap: 6 }}>
                                   <button
                                     type="button"
                                     onClick={() => setShowReportModal(true)}
                                     style={{
-                                      padding: "4px 10px",
+                                      padding: '4px 10px',
                                       borderRadius: 999,
-                                      border: "none",
-                                      background: "#4f46e5",
-                                      color: "#ffffff",
+                                      border: 'none',
+                                      background: '#4f46e5',
+                                      color: '#ffffff',
                                       fontSize: 11,
-                                      cursor: "pointer",
+                                      cursor: 'pointer',
                                     }}
                                   >
                                     View full report
@@ -1221,13 +1159,13 @@ const AdminExperiments = () => {
                                       type="button"
                                       onClick={handleApproveFromViewer}
                                       style={{
-                                        padding: "4px 10px",
+                                        padding: '4px 10px',
                                         borderRadius: 999,
-                                        border: "none",
-                                        background: "#16a34a",
-                                        color: "#ffffff",
+                                        border: 'none',
+                                        background: '#16a34a',
+                                        color: '#ffffff',
                                         fontSize: 11,
-                                        cursor: "pointer",
+                                        cursor: 'pointer',
                                       }}
                                     >
                                       Approve
@@ -1249,16 +1187,16 @@ const AdminExperiments = () => {
                     style={{
                       marginTop: 16,
                       borderRadius: 8,
-                      border: "1px solid #e5e7eb",
+                      border: '1px solid #e5e7eb',
                       padding: 12,
-                      background: "#f9fafb",
+                      background: '#f9fafb',
                     }}
                   >
                     <div
                       style={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        alignItems: "center",
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
                         marginBottom: 8,
                       }}
                     >
@@ -1267,7 +1205,7 @@ const AdminExperiments = () => {
                           style={{
                             fontSize: 13,
                             fontWeight: 600,
-                            color: "#111827",
+                            color: '#111827',
                           }}
                         >
                           Preview: {previewFile.name}
@@ -1275,7 +1213,7 @@ const AdminExperiments = () => {
                         <div
                           style={{
                             fontSize: 11,
-                            color: "#6b7280",
+                            color: '#6b7280',
                           }}
                         >
                           You can review the file here before downloading.
@@ -1285,27 +1223,27 @@ const AdminExperiments = () => {
                         type="button"
                         onClick={() => setPreviewFile(null)}
                         style={{
-                          padding: "4px 10px",
+                          padding: '4px 10px',
                           borderRadius: 999,
-                          border: "none",
-                          background: "#e5e7eb",
-                          color: "#374151",
+                          border: 'none',
+                          background: '#e5e7eb',
+                          color: '#374151',
                           fontSize: 11,
-                          cursor: "pointer",
+                          cursor: 'pointer',
                         }}
                       >
                         Close preview
                       </button>
                     </div>
 
-                    {previewFile.ext === "pdf" ? (
+                    {previewFile.ext === 'pdf' ? (
                       <iframe
                         src={previewFile.url}
                         title={previewFile.name}
                         style={{
-                          width: "100%",
+                          width: '100%',
                           height: 500,
-                          border: "none",
+                          border: 'none',
                           borderRadius: 6,
                         }}
                       />
@@ -1314,10 +1252,10 @@ const AdminExperiments = () => {
                         src={previewFile.url}
                         alt={previewFile.name}
                         style={{
-                          maxWidth: "100%",
+                          maxWidth: '100%',
                           maxHeight: 500,
                           borderRadius: 6,
-                          display: "block",
+                          display: 'block',
                         }}
                       />
                     )}
@@ -1330,32 +1268,32 @@ const AdminExperiments = () => {
             {showReportModal && reportDetails && (
               <div
                 style={{
-                  position: "fixed",
+                  position: 'fixed',
                   inset: 0,
-                  background: "rgba(15,23,42,0.45)",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
+                  background: 'rgba(15,23,42,0.45)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
                   zIndex: 9999,
                 }}
               >
                 <div
                   style={{
-                    background: "#ffffff",
+                    background: '#ffffff',
                     borderRadius: 12,
                     maxWidth: 700,
-                    width: "90%",
-                    maxHeight: "80vh",
-                    overflowY: "auto",
+                    width: '90%',
+                    maxHeight: '80vh',
+                    overflowY: 'auto',
                     padding: 16,
-                    boxShadow: "0 10px 25px rgba(15,23,42,0.25)",
+                    boxShadow: '0 10px 25px rgba(15,23,42,0.25)',
                   }}
                 >
                   <div
                     style={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "center",
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
                       marginBottom: 8,
                     }}
                   >
@@ -1364,7 +1302,7 @@ const AdminExperiments = () => {
                         margin: 0,
                         fontSize: 16,
                         fontWeight: 600,
-                        color: "#111827",
+                        color: '#111827',
                       }}
                     >
                       Experiment report – {selectedExp.title}
@@ -1373,36 +1311,36 @@ const AdminExperiments = () => {
                       type="button"
                       onClick={() => setShowReportModal(false)}
                       style={{
-                        padding: "4px 10px",
+                        padding: '4px 10px',
                         borderRadius: 999,
-                        border: "none",
-                        background: "#e5e7eb",
-                        color: "#374151",
+                        border: 'none',
+                        background: '#e5e7eb',
+                        color: '#374151',
                         fontSize: 11,
-                        cursor: "pointer",
+                        cursor: 'pointer',
                       }}
                     >
                       Close
                     </button>
                   </div>
 
-                  <div style={{ fontSize: 13, color: "#374151" }}>
+                  <div style={{ fontSize: 13, color: '#374151' }}>
                     {reportDetails.tools_used && (
-                      <p style={{ margin: "4px 0" }}>
+                      <p style={{ margin: '4px 0' }}>
                         <strong>Tools used:</strong>
                         <br />
                         {reportDetails.tools_used}
                       </p>
                     )}
                     {reportDetails.procedure_text && (
-                      <p style={{ margin: "8px 0" }}>
+                      <p style={{ margin: '8px 0' }}>
                         <strong>Procedure:</strong>
                         <br />
                         {reportDetails.procedure_text}
                       </p>
                     )}
                     {reportDetails.result && (
-                      <p style={{ margin: "8px 0" }}>
+                      <p style={{ margin: '8px 0' }}>
                         <strong>Result:</strong>
                         <br />
                         {reportDetails.result}
@@ -1411,13 +1349,12 @@ const AdminExperiments = () => {
                     {reportDetails.updated_at && (
                       <p
                         style={{
-                          margin: "8px 0 0",
+                          margin: '8px 0 0',
                           fontSize: 11,
-                          color: "#6b7280",
+                          color: '#6b7280',
                         }}
                       >
-                        Submitted on{" "}
-                        {new Date(reportDetails.updated_at).toLocaleString()}
+                        Submitted on {new Date(reportDetails.updated_at).toLocaleString()}
                       </p>
                     )}
                   </div>
@@ -1431,30 +1368,30 @@ const AdminExperiments = () => {
         {showEditModal && (
           <div
             style={{
-              position: "fixed",
+              position: 'fixed',
               inset: 0,
-              background: "rgba(15,23,42,0.45)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
+              background: 'rgba(15,23,42,0.45)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
               zIndex: 10000,
             }}
           >
             <div
               style={{
-                background: "#ffffff",
+                background: '#ffffff',
                 borderRadius: 12,
                 maxWidth: 480,
-                width: "90%",
+                width: '90%',
                 padding: 16,
-                boxShadow: "0 10px 25px rgba(15,23,42,0.25)",
+                boxShadow: '0 10px 25px rgba(15,23,42,0.25)',
               }}
             >
               <div
                 style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
                   marginBottom: 8,
                 }}
               >
@@ -1463,7 +1400,7 @@ const AdminExperiments = () => {
                     margin: 0,
                     fontSize: 16,
                     fontWeight: 600,
-                    color: "#111827",
+                    color: '#111827',
                   }}
                 >
                   Edit Experiment
@@ -1473,13 +1410,13 @@ const AdminExperiments = () => {
                   onClick={closeEditModal}
                   disabled={editLoading}
                   style={{
-                    padding: "4px 10px",
+                    padding: '4px 10px',
                     borderRadius: 999,
-                    border: "none",
-                    background: "#e5e7eb",
-                    color: "#374151",
+                    border: 'none',
+                    background: '#e5e7eb',
+                    color: '#374151',
                     fontSize: 11,
-                    cursor: editLoading ? "not-allowed" : "pointer",
+                    cursor: editLoading ? 'not-allowed' : 'pointer',
                   }}
                 >
                   Close
@@ -1490,14 +1427,14 @@ const AdminExperiments = () => {
                 <div style={{ marginBottom: 12 }}>
                   <label
                     style={{
-                      display: "block",
+                      display: 'block',
                       marginBottom: 4,
                       fontSize: 13,
                       fontWeight: 500,
-                      color: "#374151",
+                      color: '#374151',
                     }}
                   >
-                    Title <span style={{ color: "#ef4444" }}>*</span>
+                    Title <span style={{ color: '#ef4444' }}>*</span>
                   </label>
                   <input
                     type="text"
@@ -1506,12 +1443,12 @@ const AdminExperiments = () => {
                     onChange={handleEditChange}
                     disabled={editLoading}
                     style={{
-                      width: "100%",
-                      padding: "8px 10px",
+                      width: '100%',
+                      padding: '8px 10px',
                       borderRadius: 8,
-                      border: "1px solid #d1d5db",
+                      border: '1px solid #d1d5db',
                       fontSize: 13,
-                      outline: "none",
+                      outline: 'none',
                     }}
                     placeholder="Enter experiment title"
                   />
@@ -1520,11 +1457,11 @@ const AdminExperiments = () => {
                 <div style={{ marginBottom: 12 }}>
                   <label
                     style={{
-                      display: "block",
+                      display: 'block',
                       marginBottom: 4,
                       fontSize: 13,
                       fontWeight: 500,
-                      color: "#374151",
+                      color: '#374151',
                     }}
                   >
                     Description
@@ -1536,13 +1473,13 @@ const AdminExperiments = () => {
                     disabled={editLoading}
                     rows={4}
                     style={{
-                      width: "100%",
-                      padding: "8px 10px",
+                      width: '100%',
+                      padding: '8px 10px',
                       borderRadius: 8,
-                      border: "1px solid #d1d5db",
+                      border: '1px solid #d1d5db',
                       fontSize: 13,
-                      resize: "vertical",
-                      outline: "none",
+                      resize: 'vertical',
+                      outline: 'none',
                     }}
                     placeholder="Add instructions or details for the user"
                   />
@@ -1550,8 +1487,8 @@ const AdminExperiments = () => {
 
                 <div
                   style={{
-                    display: "flex",
-                    justifyContent: "flex-end",
+                    display: 'flex',
+                    justifyContent: 'flex-end',
                     gap: 8,
                     marginTop: 8,
                   }}
@@ -1561,13 +1498,13 @@ const AdminExperiments = () => {
                     onClick={closeEditModal}
                     disabled={editLoading}
                     style={{
-                      padding: "6px 12px",
+                      padding: '6px 12px',
                       borderRadius: 999,
-                      border: "none",
-                      background: "#e5e7eb",
-                      color: "#374151",
+                      border: 'none',
+                      background: '#e5e7eb',
+                      color: '#374151',
                       fontSize: 12,
-                      cursor: editLoading ? "not-allowed" : "pointer",
+                      cursor: editLoading ? 'not-allowed' : 'pointer',
                     }}
                   >
                     Cancel
@@ -1576,17 +1513,17 @@ const AdminExperiments = () => {
                     type="submit"
                     disabled={editLoading}
                     style={{
-                      padding: "6px 14px",
+                      padding: '6px 14px',
                       borderRadius: 999,
-                      border: "none",
-                      background: "#4f46e5",
-                      color: "#ffffff",
+                      border: 'none',
+                      background: '#4f46e5',
+                      color: '#ffffff',
                       fontSize: 12,
                       fontWeight: 500,
-                      cursor: editLoading ? "not-allowed" : "pointer",
+                      cursor: editLoading ? 'not-allowed' : 'pointer',
                     }}
                   >
-                    {editLoading ? "Saving..." : "Save changes"}
+                    {editLoading ? 'Saving...' : 'Save changes'}
                   </button>
                 </div>
               </form>

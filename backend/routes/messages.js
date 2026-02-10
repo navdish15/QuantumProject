@@ -1,18 +1,16 @@
 // routes/messages.js
-const express = require("express");
+const express = require('express');
 const router = express.Router();
-const db = require("../config/db");
-const { authenticateToken } = require("../middleware/authMiddleware");
+const db = require('../config/db');
+const { authenticateToken } = require('../middleware/authMiddleware');
 
 // POST /messages  -> send message
-router.post("/", authenticateToken, (req, res) => {
+router.post('/', authenticateToken, (req, res) => {
   const senderId = req.user.id; // from token
   const { receiverId, content } = req.body;
 
   if (!receiverId || !content) {
-    return res
-      .status(400)
-      .json({ message: "receiverId and content are required" });
+    return res.status(400).json({ message: 'receiverId and content are required' });
   }
 
   const sql = `
@@ -22,19 +20,19 @@ router.post("/", authenticateToken, (req, res) => {
 
   db.query(sql, [senderId, receiverId, content], (err, result) => {
     if (err) {
-      console.error("Error inserting message:", err);
-      return res.status(500).json({ message: "Failed to send message" });
+      console.error('Error inserting message:', err);
+      return res.status(500).json({ message: 'Failed to send message' });
     }
 
     res.status(201).json({
-      message: "Message sent",
+      message: 'Message sent',
       id: result.insertId,
     });
   });
 });
 
 // GET /messages/conversation/:otherUserId  -> get chat with specific user
-router.get("/conversation/:otherUserId", authenticateToken, (req, res) => {
+router.get('/conversation/:otherUserId', authenticateToken, (req, res) => {
   const userId = req.user.id; // current user (admin or normal user)
   const otherUserId = req.params.otherUserId;
 
@@ -56,8 +54,8 @@ router.get("/conversation/:otherUserId", authenticateToken, (req, res) => {
 
   db.query(sql, [userId, otherUserId, otherUserId, userId], (err, rows) => {
     if (err) {
-      console.error("Error fetching conversation:", err);
-      return res.status(500).json({ message: "Failed to fetch messages" });
+      console.error('Error fetching conversation:', err);
+      return res.status(500).json({ message: 'Failed to fetch messages' });
     }
 
     res.json(rows);
@@ -65,7 +63,7 @@ router.get("/conversation/:otherUserId", authenticateToken, (req, res) => {
 });
 
 // ✅ NEW: GET /messages/unread-count -> for logged-in user
-router.get("/unread-count", authenticateToken, (req, res) => {
+router.get('/unread-count', authenticateToken, (req, res) => {
   const userId = req.user.id;
 
   const sql = `
@@ -76,8 +74,8 @@ router.get("/unread-count", authenticateToken, (req, res) => {
 
   db.query(sql, [userId], (err, rows) => {
     if (err) {
-      console.error("Error fetching unread count:", err);
-      return res.status(500).json({ message: "Failed to fetch unread count" });
+      console.error('Error fetching unread count:', err);
+      return res.status(500).json({ message: 'Failed to fetch unread count' });
     }
 
     const count = rows[0]?.cnt || 0;
@@ -86,30 +84,24 @@ router.get("/unread-count", authenticateToken, (req, res) => {
 });
 
 // ✅ NEW: PUT /messages/conversation/:otherUserId/mark-read
-router.put(
-  "/conversation/:otherUserId/mark-read",
-  authenticateToken,
-  (req, res) => {
-    const userId = req.user.id;
-    const otherUserId = req.params.otherUserId;
+router.put('/conversation/:otherUserId/mark-read', authenticateToken, (req, res) => {
+  const userId = req.user.id;
+  const otherUserId = req.params.otherUserId;
 
-    const sql = `
+  const sql = `
       UPDATE messages
       SET is_read = 1
       WHERE receiver_id = ? AND sender_id = ? AND is_read = 0
     `;
 
-    db.query(sql, [userId, otherUserId], (err) => {
-      if (err) {
-        console.error("Error marking messages read:", err);
-        return res
-          .status(500)
-          .json({ message: "Failed to mark messages as read" });
-      }
+  db.query(sql, [userId, otherUserId], (err) => {
+    if (err) {
+      console.error('Error marking messages read:', err);
+      return res.status(500).json({ message: 'Failed to mark messages as read' });
+    }
 
-      res.json({ message: "Messages marked as read" });
-    });
-  },
-);
+    res.json({ message: 'Messages marked as read' });
+  });
+});
 
 module.exports = router;

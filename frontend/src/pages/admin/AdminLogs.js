@@ -1,16 +1,16 @@
-import React, { useEffect, useState, useCallback } from "react";
-import AdminLayout from "../../components/AdminLayout";
-import api from "../../api";
+import React, { useEffect, useState, useCallback } from 'react';
+import AdminLayout from '../../components/AdminLayout';
+import api from '../../api';
 
 const AdminLogs = () => {
   const [logs, setLogs] = useState([]);
   const [loading, setLoading] = useState(false);
 
   // FILTER STATES
-  const [event, setEvent] = useState("");
-  const [severity, setSeverity] = useState("");
-  const [userId, setUserId] = useState("");
-  const [search, setSearch] = useState("");
+  const [event, setEvent] = useState('');
+  const [severity, setSeverity] = useState('');
+  const [userId, setUserId] = useState('');
+  const [search, setSearch] = useState('');
 
   // PAGINATION
   const [page, setPage] = useState(1);
@@ -36,7 +36,7 @@ const AdminLogs = () => {
     setLoading(true);
 
     try {
-      const res = await api.get("/admin/logs", {
+      const res = await api.get('/admin/logs', {
         params: {
           page,
           limit,
@@ -51,7 +51,7 @@ const AdminLogs = () => {
       setLogs(res.data.data || []);
       setPages(res.data.pages || 1);
     } catch (err) {
-      console.log("Error fetching logs", err);
+      console.log('Error fetching logs', err);
       setLogs([]);
       setPages(1);
     }
@@ -79,33 +79,23 @@ const AdminLogs = () => {
             marginTop: 20,
             marginBottom: 20,
             padding: 15,
-            background: "#fff",
+            background: '#fff',
             borderRadius: 8,
-            display: "flex",
+            display: 'flex',
             gap: 15,
-            alignItems: "center",
+            alignItems: 'center',
           }}
         >
-          <select
-            value={event}
-            onChange={(e) => setEvent(e.target.value)}
-            style={{ padding: 8, borderRadius: 6 }}
-          >
+          <select value={event} onChange={(e) => setEvent(e.target.value)} style={{ padding: 8, borderRadius: 6 }}>
             <option value="">All Events</option>
             <option value="user.create">user.create</option>
             <option value="user.status.update">user.status.update</option>
             <option value="experiment.create">experiment.create</option>
-            <option value="experiment.status.update">
-              experiment.status.update
-            </option>
+            <option value="experiment.status.update">experiment.status.update</option>
             <option value="notification.create">notification.create</option>
           </select>
 
-          <select
-            value={severity}
-            onChange={(e) => setSeverity(e.target.value)}
-            style={{ padding: 8, borderRadius: 6 }}
-          >
+          <select value={severity} onChange={(e) => setSeverity(e.target.value)} style={{ padding: 8, borderRadius: 6 }}>
             <option value="">All Severity</option>
             <option value="info">info</option>
             <option value="warn">warn</option>
@@ -121,7 +111,7 @@ const AdminLogs = () => {
             style={{
               padding: 8,
               borderRadius: 6,
-              border: "1px solid #ccc",
+              border: '1px solid #ccc',
               width: 120,
             }}
           />
@@ -134,7 +124,7 @@ const AdminLogs = () => {
             style={{
               padding: 8,
               borderRadius: 6,
-              border: "1px solid #ccc",
+              border: '1px solid #ccc',
               flex: 1,
             }}
           />
@@ -142,12 +132,12 @@ const AdminLogs = () => {
           <button
             onClick={applyFilters}
             style={{
-              padding: "8px 15px",
-              background: "#2563eb",
-              color: "#fff",
+              padding: '8px 15px',
+              background: '#2563eb',
+              color: '#fff',
               borderRadius: 6,
-              border: "none",
-              cursor: "pointer",
+              border: 'none',
+              cursor: 'pointer',
             }}
           >
             Apply Filters
@@ -157,34 +147,34 @@ const AdminLogs = () => {
           <button
             onClick={async () => {
               try {
-                const res = await api.get("/admin/logs/export", {
+                const res = await api.get('/admin/logs/export', {
                   params: {
                     event: event || undefined,
                     severity: severity || undefined,
                     user_id: userId || undefined,
                     q: search || undefined,
                   },
-                  responseType: "blob",
+                  responseType: 'blob',
                 });
 
-                const blob = new Blob([res.data], { type: "text/csv" });
+                const blob = new Blob([res.data], { type: 'text/csv' });
                 const url = window.URL.createObjectURL(blob);
-                const a = document.createElement("a");
+                const a = document.createElement('a');
                 a.href = url;
-                a.download = "logs.csv";
+                a.download = 'logs.csv';
                 a.click();
                 window.URL.revokeObjectURL(url);
               } catch (err) {
-                console.error("Export failed", err);
+                console.error('Export failed', err);
               }
             }}
             style={{
-              padding: "8px 15px",
-              background: "#10b981",
-              color: "#fff",
+              padding: '8px 15px',
+              background: '#10b981',
+              color: '#fff',
               borderRadius: 6,
-              border: "none",
-              cursor: "pointer",
+              border: 'none',
+              cursor: 'pointer',
             }}
           >
             Export CSV
@@ -195,11 +185,8 @@ const AdminLogs = () => {
         {loading ? (
           <p>Loading logs...</p>
         ) : (
-          <div style={{ overflowX: "auto" }}>
-            <table
-              className="table table-bordered"
-              style={{ background: "#fff" }}
-            >
+          <div style={{ overflowX: 'auto' }}>
+            <table className="table table-bordered" style={{ background: '#fff' }}>
               <thead>
                 <tr>
                   <th>ID</th>
@@ -216,10 +203,7 @@ const AdminLogs = () => {
               <tbody>
                 {logs.length === 0 ? (
                   <tr>
-                    <td
-                      colSpan="8"
-                      style={{ textAlign: "center", padding: 20 }}
-                    >
+                    <td colSpan="8" style={{ textAlign: 'center', padding: 20 }}>
                       No Logs Found
                     </td>
                   </tr>
@@ -228,18 +212,15 @@ const AdminLogs = () => {
                     <tr key={log.id}>
                       <td>{log.id}</td>
                       <td>{new Date(log.created_at).toLocaleString()}</td>
-                      <td>{log.user_name || "SYSTEM"}</td>
-                      <td>{log.role || "-"}</td>
+                      <td>{log.user_name || 'SYSTEM'}</td>
+                      <td>{log.role || '-'}</td>
                       <td>{log.event}</td>
                       <td>
                         {log.resource_type}/{log.resource_id}
                       </td>
                       <td>{log.severity}</td>
                       <td>
-                        <button
-                          onClick={() => openModal(log)}
-                          className="btn btn-primary btn-sm"
-                        >
+                        <button onClick={() => openModal(log)} className="btn btn-primary btn-sm">
                           View
                         </button>
                       </td>
@@ -253,28 +234,20 @@ const AdminLogs = () => {
             <div
               style={{
                 marginTop: 20,
-                display: "flex",
-                justifyContent: "center",
+                display: 'flex',
+                justifyContent: 'center',
                 gap: 10,
               }}
             >
-              <button
-                disabled={page <= 1}
-                onClick={() => setPage((p) => Math.max(1, p - 1))}
-                className="btn btn-primary"
-              >
+              <button disabled={page <= 1} onClick={() => setPage((p) => Math.max(1, p - 1))} className="btn btn-primary">
                 Previous
               </button>
 
-              <span style={{ padding: 10, fontWeight: "bold" }}>
+              <span style={{ padding: 10, fontWeight: 'bold' }}>
                 Page {page} of {pages}
               </span>
 
-              <button
-                disabled={page >= pages}
-                onClick={() => setPage((p) => Math.min(pages, p + 1))}
-                className="btn btn-primary"
-              >
+              <button disabled={page >= pages} onClick={() => setPage((p) => Math.min(pages, p + 1))} className="btn btn-primary">
                 Next
               </button>
             </div>
@@ -286,23 +259,23 @@ const AdminLogs = () => {
       {modalOpen && selectedLog && (
         <div
           style={{
-            position: "fixed",
+            position: 'fixed',
             inset: 0,
-            background: "rgba(0,0,0,0.5)",
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
+            background: 'rgba(0,0,0,0.5)',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
             zIndex: 10000,
           }}
         >
           <div
             style={{
               width: 600,
-              background: "#fff",
+              background: '#fff',
               padding: 20,
               borderRadius: 8,
-              maxHeight: "80vh",
-              overflowY: "auto",
+              maxHeight: '80vh',
+              overflowY: 'auto',
             }}
           >
             <h4>Log Details</h4>
@@ -312,21 +285,19 @@ const AdminLogs = () => {
               <strong>ID:</strong> {selectedLog.id}
             </p>
             <p>
-              <strong>Time:</strong>{" "}
-              {new Date(selectedLog.created_at).toLocaleString()}
+              <strong>Time:</strong> {new Date(selectedLog.created_at).toLocaleString()}
             </p>
             <p>
-              <strong>User:</strong> {selectedLog.user_name || "SYSTEM"}
+              <strong>User:</strong> {selectedLog.user_name || 'SYSTEM'}
             </p>
             <p>
-              <strong>Role:</strong> {selectedLog.role || "-"}
+              <strong>Role:</strong> {selectedLog.role || '-'}
             </p>
             <p>
               <strong>Event:</strong> {selectedLog.event}
             </p>
             <p>
-              <strong>Resource:</strong> {selectedLog.resource_type}/
-              {selectedLog.resource_id}
+              <strong>Resource:</strong> {selectedLog.resource_type}/{selectedLog.resource_id}
             </p>
             <p>
               <strong>Severity:</strong> {selectedLog.severity}
@@ -335,20 +306,16 @@ const AdminLogs = () => {
             <strong>Details:</strong>
             <pre
               style={{
-                background: "#f5f5f5",
+                background: '#f5f5f5',
                 padding: 10,
                 borderRadius: 6,
-                whiteSpace: "pre-wrap",
+                whiteSpace: 'pre-wrap',
               }}
             >
               {JSON.stringify(selectedLog.details, null, 2)}
             </pre>
 
-            <button
-              onClick={closeModal}
-              className="btn btn-dark"
-              style={{ marginTop: 15 }}
-            >
+            <button onClick={closeModal} className="btn btn-dark" style={{ marginTop: 15 }}>
               Close
             </button>
           </div>

@@ -1,7 +1,7 @@
 // src/pages/users/UserDashboard.js
-import React, { useEffect, useState, useCallback, useRef } from "react";
-import { getUser } from "../../utils/auth";
-import api from "../../api"; // use same axios instance as admin
+import React, { useEffect, useState, useCallback, useRef } from 'react';
+import { getUser } from '../../utils/auth';
+import api from '../../api'; // use same axios instance as admin
 
 /**
  * Single notification item
@@ -10,20 +10,18 @@ const NotificationItem = ({ n, onMark }) => {
   return (
     <div
       style={{
-        background: n.is_read ? "#fff" : "#f0f9ff",
+        background: n.is_read ? '#fff' : '#f0f9ff',
         padding: 12,
         borderRadius: 8,
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "flex-start",
-        border: "1px solid #eef2ff",
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'flex-start',
+        border: '1px solid #eef2ff',
       }}
     >
       <div style={{ flex: 1 }}>
         {n.title && <div style={{ fontWeight: 700 }}>{n.title}</div>}
-        {n.message && (
-          <div style={{ marginTop: 6, color: "#475569" }}>{n.message}</div>
-        )}
+        {n.message && <div style={{ marginTop: 6, color: '#475569' }}>{n.message}</div>}
 
         {n.link && (
           <div style={{ marginTop: 8 }}>
@@ -31,9 +29,9 @@ const NotificationItem = ({ n, onMark }) => {
             <a
               href={n.link}
               style={{
-                color: "#0f172a",
+                color: '#0f172a',
                 fontWeight: 700,
-                textDecoration: "none",
+                textDecoration: 'none',
               }}
             >
               Open
@@ -41,16 +39,14 @@ const NotificationItem = ({ n, onMark }) => {
           </div>
         )}
 
-        <div style={{ marginTop: 8, fontSize: 12, color: "#94a3b8" }}>
-          {n.created_at ? new Date(n.created_at).toLocaleString() : ""}
-        </div>
+        <div style={{ marginTop: 8, fontSize: 12, color: '#94a3b8' }}>{n.created_at ? new Date(n.created_at).toLocaleString() : ''}</div>
       </div>
 
       <div
         style={{
           marginLeft: 12,
-          display: "flex",
-          flexDirection: "column",
+          display: 'flex',
+          flexDirection: 'column',
           gap: 8,
         }}
       >
@@ -58,12 +54,12 @@ const NotificationItem = ({ n, onMark }) => {
           <button
             onClick={() => onMark(n.id)}
             style={{
-              padding: "6px 8px",
+              padding: '6px 8px',
               borderRadius: 6,
-              background: "#10b981",
-              color: "#fff",
-              border: "none",
-              cursor: "pointer",
+              background: '#10b981',
+              color: '#fff',
+              border: 'none',
+              cursor: 'pointer',
             }}
           >
             Mark read
@@ -83,7 +79,7 @@ const FloatingChat = ({ currentUser }) => {
 
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState([]);
-  const [newMessage, setNewMessage] = useState("");
+  const [newMessage, setNewMessage] = useState('');
   const [loadingMessages, setLoadingMessages] = useState(false);
   const [sending, setSending] = useState(false);
 
@@ -97,7 +93,7 @@ const FloatingChat = ({ currentUser }) => {
 
   // Initial position: bottom-right
   useEffect(() => {
-    if (typeof window !== "undefined") {
+    if (typeof window !== 'undefined') {
       const size = 60; // button size
       setPosition({
         x: window.innerWidth - size - 20,
@@ -112,7 +108,7 @@ const FloatingChat = ({ currentUser }) => {
       const res = await api.get(`/messages/conversation/${ADMIN_ID}`);
       setMessages(Array.isArray(res.data) ? res.data : []);
     } catch (err) {
-      console.error("Failed to load messages", err);
+      console.error('Failed to load messages', err);
     } finally {
       setLoadingMessages(false);
     }
@@ -121,11 +117,11 @@ const FloatingChat = ({ currentUser }) => {
   // ✅ load unread count (even when popup closed)
   const loadUnreadCount = useCallback(async () => {
     try {
-      const res = await api.get("/messages/unread-count");
+      const res = await api.get('/messages/unread-count');
       const count = res.data?.count || 0;
       setUnreadCount(count);
     } catch (err) {
-      console.error("Failed to load unread count", err);
+      console.error('Failed to load unread count', err);
     }
   }, []);
 
@@ -142,7 +138,7 @@ const FloatingChat = ({ currentUser }) => {
       await api.put(`/messages/conversation/${ADMIN_ID}/mark-read`);
       setUnreadCount(0);
     } catch (err) {
-      console.error("Failed to mark messages as read", err);
+      console.error('Failed to mark messages as read', err);
     }
   }, [ADMIN_ID]);
 
@@ -166,14 +162,14 @@ const FloatingChat = ({ currentUser }) => {
 
     setSending(true);
     try {
-      await api.post("/messages", {
+      await api.post('/messages', {
         receiverId: ADMIN_ID,
         content,
       });
-      setNewMessage("");
+      setNewMessage('');
       loadMessages();
     } catch (err) {
-      console.error("Failed to send message", err);
+      console.error('Failed to send message', err);
     } finally {
       setSending(false);
     }
@@ -204,13 +200,13 @@ const FloatingChat = ({ currentUser }) => {
     };
 
     if (isDragging) {
-      window.addEventListener("mousemove", handleMouseMove);
-      window.addEventListener("mouseup", handleMouseUp);
+      window.addEventListener('mousemove', handleMouseMove);
+      window.addEventListener('mouseup', handleMouseUp);
     }
 
     return () => {
-      window.removeEventListener("mousemove", handleMouseMove);
-      window.removeEventListener("mouseup", handleMouseUp);
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', handleMouseUp);
     };
   }, [isDragging]);
 
@@ -241,36 +237,35 @@ const FloatingChat = ({ currentUser }) => {
     };
 
     if (isDragging) {
-      window.addEventListener("touchmove", handleTouchMove);
-      window.addEventListener("touchend", handleTouchEnd);
-      window.addEventListener("touchcancel", handleTouchEnd);
+      window.addEventListener('touchmove', handleTouchMove);
+      window.addEventListener('touchend', handleTouchEnd);
+      window.addEventListener('touchcancel', handleTouchEnd);
     }
 
     return () => {
-      window.removeEventListener("touchmove", handleTouchMove);
-      window.removeEventListener("touchend", handleTouchEnd);
-      window.removeEventListener("touchcancel", handleTouchEnd);
+      window.removeEventListener('touchmove', handleTouchMove);
+      window.removeEventListener('touchend', handleTouchEnd);
+      window.removeEventListener('touchcancel', handleTouchEnd);
     };
   }, [isDragging]);
 
   // position of popup
   const popupStyle = {
-    position: "fixed",
+    position: 'fixed',
     width: 320,
     maxHeight: 400,
     left: Math.max(10, position.x - 260),
     top: Math.max(10, position.y - 360),
-    background: "#ffffff",
+    background: '#ffffff',
     borderRadius: 12,
-    boxShadow: "0 10px 30px rgba(15,23,42,0.25)",
-    display: "flex",
-    flexDirection: "column",
-    overflow: "hidden",
+    boxShadow: '0 10px 30px rgba(15,23,42,0.25)',
+    display: 'flex',
+    flexDirection: 'column',
+    overflow: 'hidden',
     zIndex: 1000,
   };
 
-  const badgeText =
-    unreadCount > 9 ? "9+" : unreadCount > 0 ? String(unreadCount) : "";
+  const badgeText = unreadCount > 9 ? '9+' : unreadCount > 0 ? String(unreadCount) : '';
 
   return (
     <>
@@ -279,26 +274,26 @@ const FloatingChat = ({ currentUser }) => {
         <div style={popupStyle}>
           <div
             style={{
-              padding: "10px 12px",
-              background: "#0f172a",
-              color: "#fff",
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
+              padding: '10px 12px',
+              background: '#0f172a',
+              color: '#fff',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
             }}
           >
             <span style={{ fontSize: 14 }}>
               Chat with Admin
-              {currentUser?.name ? ` – ${currentUser.name}` : ""}
+              {currentUser?.name ? ` – ${currentUser.name}` : ''}
             </span>
             <button
               onClick={() => setIsOpen(false)}
               style={{
-                border: "none",
-                background: "transparent",
-                color: "#fff",
+                border: 'none',
+                background: 'transparent',
+                color: '#fff',
                 fontSize: 16,
-                cursor: "pointer",
+                cursor: 'pointer',
               }}
             >
               ×
@@ -309,21 +304,15 @@ const FloatingChat = ({ currentUser }) => {
             style={{
               padding: 10,
               flex: 1,
-              overflowY: "auto",
-              background: "#f8fafc",
+              overflowY: 'auto',
+              background: '#f8fafc',
               fontSize: 13,
             }}
           >
-            {loadingMessages && (
-              <div style={{ textAlign: "center", padding: 10 }}>Loading...</div>
-            )}
+            {loadingMessages && <div style={{ textAlign: 'center', padding: 10 }}>Loading...</div>}
 
             {!loadingMessages && messages.length === 0 && (
-              <div
-                style={{ textAlign: "center", padding: 10, color: "#64748b" }}
-              >
-                No messages yet. Say hi to admin 👋
-              </div>
+              <div style={{ textAlign: 'center', padding: 10, color: '#64748b' }}>No messages yet. Say hi to admin 👋</div>
             )}
 
             {messages.map((m) => {
@@ -332,19 +321,19 @@ const FloatingChat = ({ currentUser }) => {
                 <div
                   key={m.id}
                   style={{
-                    display: "flex",
-                    justifyContent: isMe ? "flex-end" : "flex-start",
+                    display: 'flex',
+                    justifyContent: isMe ? 'flex-end' : 'flex-start',
                     marginBottom: 6,
                   }}
                 >
                   <div
                     style={{
-                      maxWidth: "70%",
-                      padding: "6px 8px",
+                      maxWidth: '70%',
+                      padding: '6px 8px',
                       borderRadius: 8,
                       fontSize: 13,
-                      background: isMe ? "#0f172a" : "#e5f2ff",
-                      color: isMe ? "#fff" : "#0f172a",
+                      background: isMe ? '#0f172a' : '#e5f2ff',
+                      color: isMe ? '#fff' : '#0f172a',
                     }}
                   >
                     <div>{m.content}</div>
@@ -353,12 +342,10 @@ const FloatingChat = ({ currentUser }) => {
                         fontSize: 10,
                         marginTop: 2,
                         opacity: 0.7,
-                        textAlign: "right",
+                        textAlign: 'right',
                       }}
                     >
-                      {m.created_at
-                        ? new Date(m.created_at).toLocaleTimeString()
-                        : ""}
+                      {m.created_at ? new Date(m.created_at).toLocaleTimeString() : ''}
                     </div>
                   </div>
                 </div>
@@ -370,8 +357,8 @@ const FloatingChat = ({ currentUser }) => {
             onSubmit={handleSend}
             style={{
               padding: 8,
-              borderTop: "1px solid #e5e7eb",
-              display: "flex",
+              borderTop: '1px solid #e5e7eb',
+              display: 'flex',
               gap: 6,
             }}
           >
@@ -382,10 +369,10 @@ const FloatingChat = ({ currentUser }) => {
               onChange={(e) => setNewMessage(e.target.value)}
               style={{
                 flex: 1,
-                padding: "6px 8px",
+                padding: '6px 8px',
                 borderRadius: 6,
-                border: "1px solid #d1d5db",
-                outline: "none",
+                border: '1px solid #d1d5db',
+                outline: 'none',
                 fontSize: 13,
               }}
             />
@@ -393,13 +380,13 @@ const FloatingChat = ({ currentUser }) => {
               type="submit"
               disabled={sending}
               style={{
-                padding: "6px 10px",
+                padding: '6px 10px',
                 borderRadius: 6,
-                border: "none",
-                background: "#0f172a",
-                color: "#fff",
+                border: 'none',
+                background: '#0f172a',
+                color: '#fff',
                 fontSize: 13,
-                cursor: "pointer",
+                cursor: 'pointer',
                 opacity: sending ? 0.7 : 1,
               }}
             >
@@ -419,52 +406,52 @@ const FloatingChat = ({ currentUser }) => {
           }
         }}
         style={{
-          position: "fixed",
+          position: 'fixed',
           left: position.x,
           top: position.y,
           width: 60,
           height: 60,
-          borderRadius: "50%",
-          background: "#0f172a",
-          color: "#fff",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
+          borderRadius: '50%',
+          background: '#0f172a',
+          color: '#fff',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
           fontSize: 26,
-          cursor: "pointer",
-          boxShadow: "0 10px 20px rgba(15,23,42,0.35)",
+          cursor: 'pointer',
+          boxShadow: '0 10px 20px rgba(15,23,42,0.35)',
           zIndex: 999,
-          userSelect: "none",
+          userSelect: 'none',
         }}
       >
         <div
           style={{
-            position: "relative",
-            width: "100%",
-            height: "100%",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
+            position: 'relative',
+            width: '100%',
+            height: '100%',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
           }}
         >
           <span>💬</span>
           {unreadCount > 0 && (
             <span
               style={{
-                position: "absolute",
+                position: 'absolute',
                 top: 4,
                 right: 8,
                 minWidth: 18,
                 height: 18,
                 borderRadius: 999,
-                background: "#ef4444",
-                color: "#fff",
+                background: '#ef4444',
+                color: '#fff',
                 fontSize: 11,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                padding: "0 4px",
-                boxShadow: "0 0 0 2px #0f172a",
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                padding: '0 4px',
+                boxShadow: '0 0 0 2px #0f172a',
               }}
             >
               {badgeText}
@@ -485,10 +472,10 @@ const UserDashboard = () => {
   const loadNotifications = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await api.get("/user/notifications");
+      const res = await api.get('/user/notifications');
       setNotifications(Array.isArray(res.data) ? res.data : res.data || []);
     } catch (err) {
-      console.error("Failed to load notifications", err);
+      console.error('Failed to load notifications', err);
     } finally {
       setLoading(false);
     }
@@ -502,23 +489,21 @@ const UserDashboard = () => {
 
   const handleMarkRead = async (id) => {
     const prev = notifications.slice();
-    setNotifications((p) =>
-      p.map((n) => (n.id === id ? { ...n, is_read: 1 } : n)),
-    );
+    setNotifications((p) => p.map((n) => (n.id === id ? { ...n, is_read: 1 } : n)));
     try {
       await api.put(`/user/notifications/${id}/read`);
     } catch (err) {
-      console.error("Mark read failed", err);
+      console.error('Mark read failed', err);
       setNotifications(prev);
     }
   };
 
   const handleMarkAll = async () => {
     try {
-      await api.put("/user/notifications/mark-all-read");
+      await api.put('/user/notifications/mark-all-read');
       setNotifications((p) => p.map((n) => ({ ...n, is_read: 1 })));
     } catch (err) {
-      console.error("Mark all failed", err);
+      console.error('Mark all failed', err);
       loadNotifications();
     }
   };
@@ -527,26 +512,24 @@ const UserDashboard = () => {
 
   return (
     <div style={{ padding: 20 }}>
-      <h3 style={{ marginBottom: 10 }}>
-        Welcome{user?.name ? `, ${user.name}` : ""}!
-      </h3>
+      <h3 style={{ marginBottom: 10 }}>Welcome{user?.name ? `, ${user.name}` : ''}!</h3>
 
       {/* Notifications section */}
       <div style={{ marginTop: 8 }}>
         <div
           style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
           }}
         >
           <h4 style={{ margin: 0 }}>
-            Notifications{" "}
+            Notifications{' '}
             {unreadCount > 0 && (
               <span
                 style={{
                   marginLeft: 8,
-                  color: "#ef4444",
+                  color: '#ef4444',
                   fontWeight: 700,
                 }}
               >
@@ -555,14 +538,14 @@ const UserDashboard = () => {
             )}
           </h4>
 
-          <div style={{ display: "flex", gap: 8 }}>
+          <div style={{ display: 'flex', gap: 8 }}>
             <button
               onClick={loadNotifications}
               style={{
-                padding: "6px 8px",
+                padding: '6px 8px',
                 borderRadius: 6,
-                border: "1px solid #e6eef7",
-                background: "#fff",
+                border: '1px solid #e6eef7',
+                background: '#fff',
               }}
             >
               Refresh
@@ -571,11 +554,11 @@ const UserDashboard = () => {
             <button
               onClick={handleMarkAll}
               style={{
-                padding: "6px 8px",
+                padding: '6px 8px',
                 borderRadius: 6,
-                border: "none",
-                background: "#0f172a",
-                color: "#fff",
+                border: 'none',
+                background: '#0f172a',
+                color: '#fff',
               }}
             >
               Mark all read
@@ -590,7 +573,7 @@ const UserDashboard = () => {
             style={{
               marginTop: 12,
               padding: 12,
-              background: "#fff",
+              background: '#fff',
               borderRadius: 8,
             }}
           >
@@ -598,7 +581,7 @@ const UserDashboard = () => {
           </div>
         )}
 
-        <div style={{ marginTop: 12, display: "grid", gap: 8 }}>
+        <div style={{ marginTop: 12, display: 'grid', gap: 8 }}>
           {notifications.map((n) => (
             <NotificationItem key={n.id} n={n} onMark={handleMarkRead} />
           ))}

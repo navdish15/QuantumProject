@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import api from "../../api";
+import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import api from '../../api';
 
 const UserExperiments = () => {
   const [experiments, setExperiments] = useState([]);
-  const [error, setError] = useState("");
+  const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
 
   const navigate = useNavigate();
@@ -12,14 +12,11 @@ const UserExperiments = () => {
   useEffect(() => {
     const fetchExperiments = async () => {
       try {
-        const res = await api.get("/user/experiments");
+        const res = await api.get('/user/experiments');
         setExperiments(res.data);
       } catch (err) {
-        console.error(
-          "User experiments load error:",
-          err.response?.data || err,
-        );
-        setError(err.response?.data?.message || "Failed to load experiments");
+        console.error('User experiments load error:', err.response?.data || err);
+        setError(err.response?.data?.message || 'Failed to load experiments');
       } finally {
         setLoading(false);
       }
@@ -30,26 +27,26 @@ const UserExperiments = () => {
 
   const getStatusStyles = (status) => {
     const base = {
-      display: "inline-flex",
-      alignItems: "center",
-      justifyContent: "center",
-      padding: "2px 8px",
+      display: 'inline-flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: '2px 8px',
       borderRadius: 999,
       fontSize: 12,
-      textTransform: "capitalize",
+      textTransform: 'capitalize',
     };
 
     switch (status) {
-      case "pending":
-        return { ...base, background: "#fef3c7", color: "#92400e" };
-      case "active":
-        return { ...base, background: "#dbeafe", color: "#1d4ed8" };
-      case "done":
-        return { ...base, background: "#dcfce7", color: "#166534" };
-      case "approved":
-        return { ...base, background: "#e0f2fe", color: "#0369a1" };
+      case 'pending':
+        return { ...base, background: '#fef3c7', color: '#92400e' };
+      case 'active':
+        return { ...base, background: '#dbeafe', color: '#1d4ed8' };
+      case 'done':
+        return { ...base, background: '#dcfce7', color: '#166534' };
+      case 'approved':
+        return { ...base, background: '#e0f2fe', color: '#0369a1' };
       default:
-        return { ...base, background: "#e5e7eb", color: "#374151" };
+        return { ...base, background: '#e5e7eb', color: '#374151' };
     }
   };
 
@@ -57,9 +54,9 @@ const UserExperiments = () => {
     <div
       style={{
         padding: 24,
-        background: "#f3f4f6",
-        minHeight: "100vh",
-        boxSizing: "border-box",
+        background: '#f3f4f6',
+        minHeight: '100vh',
+        boxSizing: 'border-box',
       }}
     >
       <div style={{ marginBottom: 16 }}>
@@ -68,14 +65,12 @@ const UserExperiments = () => {
             margin: 0,
             fontSize: 22,
             fontWeight: 600,
-            color: "#111827",
+            color: '#111827',
           }}
         >
           My Experiments
         </h2>
-        <p style={{ margin: "4px 0 0", fontSize: 13, color: "#6b7280" }}>
-          Experiments that are assigned to you by the admin.
-        </p>
+        <p style={{ margin: '4px 0 0', fontSize: 13, color: '#6b7280' }}>Experiments that are assigned to you by the admin.</p>
       </div>
 
       {error && (
@@ -84,10 +79,10 @@ const UserExperiments = () => {
             marginBottom: 12,
             padding: 10,
             borderRadius: 6,
-            background: "#fee2e2",
-            color: "#991b1b",
+            background: '#fee2e2',
+            color: '#991b1b',
             fontSize: 13,
-            border: "1px solid #fecaca",
+            border: '1px solid #fecaca',
           }}
         >
           {error}
@@ -95,27 +90,25 @@ const UserExperiments = () => {
       )}
 
       {loading ? (
-        <p style={{ fontSize: 13, color: "#6b7280" }}>Loading...</p>
+        <p style={{ fontSize: 13, color: '#6b7280' }}>Loading...</p>
       ) : experiments.length === 0 ? (
-        <p style={{ fontSize: 13, color: "#6b7280" }}>
-          No experiments have been assigned to you yet.
-        </p>
+        <p style={{ fontSize: 13, color: '#6b7280' }}>No experiments have been assigned to you yet.</p>
       ) : (
         <div
           style={{
             padding: 18,
             borderRadius: 12,
-            border: "1px solid #e5e7eb",
-            background: "#ffffff",
-            boxShadow: "0 1px 2px rgba(15, 23, 42, 0.04)",
+            border: '1px solid #e5e7eb',
+            background: '#ffffff',
+            boxShadow: '0 1px 2px rgba(15, 23, 42, 0.04)',
           }}
         >
           <div
             style={{
               marginBottom: 10,
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
             }}
           >
             <h3
@@ -123,31 +116,31 @@ const UserExperiments = () => {
                 margin: 0,
                 fontSize: 16,
                 fontWeight: 600,
-                color: "#111827",
+                color: '#111827',
               }}
             >
               Assigned Experiments
             </h3>
-            <span style={{ fontSize: 11, color: "#6b7280" }}>Latest first</span>
+            <span style={{ fontSize: 11, color: '#6b7280' }}>Latest first</span>
           </div>
 
-          <div style={{ overflowX: "auto" }}>
+          <div style={{ overflowX: 'auto' }}>
             <table
               style={{
-                width: "100%",
-                borderCollapse: "collapse",
+                width: '100%',
+                borderCollapse: 'collapse',
                 fontSize: 13,
               }}
             >
               <thead>
-                <tr style={{ background: "#f9fafb" }}>
+                <tr style={{ background: '#f9fafb' }}>
                   <th
                     style={{
-                      borderBottom: "1px solid #e5e7eb",
+                      borderBottom: '1px solid #e5e7eb',
                       padding: 8,
-                      textAlign: "left",
+                      textAlign: 'left',
                       fontWeight: 500,
-                      color: "#6b7280",
+                      color: '#6b7280',
                       fontSize: 12,
                     }}
                   >
@@ -155,11 +148,11 @@ const UserExperiments = () => {
                   </th>
                   <th
                     style={{
-                      borderBottom: "1px solid #e5e7eb",
+                      borderBottom: '1px solid #e5e7eb',
                       padding: 8,
-                      textAlign: "left",
+                      textAlign: 'left',
                       fontWeight: 500,
-                      color: "#6b7280",
+                      color: '#6b7280',
                       fontSize: 12,
                     }}
                   >
@@ -167,11 +160,11 @@ const UserExperiments = () => {
                   </th>
                   <th
                     style={{
-                      borderBottom: "1px solid #e5e7eb",
+                      borderBottom: '1px solid #e5e7eb',
                       padding: 8,
-                      textAlign: "left",
+                      textAlign: 'left',
                       fontWeight: 500,
-                      color: "#6b7280",
+                      color: '#6b7280',
                       fontSize: 12,
                     }}
                   >
@@ -179,11 +172,11 @@ const UserExperiments = () => {
                   </th>
                   <th
                     style={{
-                      borderBottom: "1px solid #e5e7eb",
+                      borderBottom: '1px solid #e5e7eb',
                       padding: 8,
-                      textAlign: "left",
+                      textAlign: 'left',
                       fontWeight: 500,
-                      color: "#6b7280",
+                      color: '#6b7280',
                       fontSize: 12,
                     }}
                   >
@@ -191,11 +184,11 @@ const UserExperiments = () => {
                   </th>
                   <th
                     style={{
-                      borderBottom: "1px solid #e5e7eb",
+                      borderBottom: '1px solid #e5e7eb',
                       padding: 8,
-                      textAlign: "left",
+                      textAlign: 'left',
                       fontWeight: 500,
-                      color: "#6b7280",
+                      color: '#6b7280',
                       fontSize: 12,
                     }}
                   >
@@ -208,49 +201,39 @@ const UserExperiments = () => {
                   <tr
                     key={exp.id}
                     style={{
-                      borderBottom: "1px solid #f3f4f6",
-                      transition: "background 0.12s ease",
+                      borderBottom: '1px solid #f3f4f6',
+                      transition: 'background 0.12s ease',
                     }}
                   >
-                    <td
-                      style={{ padding: 8, color: "#111827", fontWeight: 500 }}
-                    >
-                      {exp.title}
-                    </td>
+                    <td style={{ padding: 8, color: '#111827', fontWeight: 500 }}>{exp.title}</td>
                     <td
                       style={{
                         padding: 8,
-                        color: "#4b5563",
+                        color: '#4b5563',
                         maxWidth: 260,
-                        whiteSpace: "nowrap",
-                        textOverflow: "ellipsis",
-                        overflow: "hidden",
+                        whiteSpace: 'nowrap',
+                        textOverflow: 'ellipsis',
+                        overflow: 'hidden',
                       }}
-                      title={exp.description || ""}
+                      title={exp.description || ''}
                     >
-                      {exp.description || "-"}
+                      {exp.description || '-'}
                     </td>
                     <td style={{ padding: 8 }}>
-                      <span style={getStatusStyles(exp.status)}>
-                        {exp.status || "pending"}
-                      </span>
+                      <span style={getStatusStyles(exp.status)}>{exp.status || 'pending'}</span>
                     </td>
-                    <td style={{ padding: 8, color: "#4b5563", fontSize: 12 }}>
-                      {exp.created_at
-                        ? new Date(exp.created_at).toLocaleString()
-                        : "-"}
-                    </td>
+                    <td style={{ padding: 8, color: '#4b5563', fontSize: 12 }}>{exp.created_at ? new Date(exp.created_at).toLocaleString() : '-'}</td>
                     <td style={{ padding: 8 }}>
                       <button
                         onClick={() => navigate(`/user/experiments/${exp.id}`)}
                         style={{
-                          padding: "6px 10px",
+                          padding: '6px 10px',
                           borderRadius: 999,
-                          border: "none",
-                          background: "#4f46e5",
-                          color: "#ffffff",
+                          border: 'none',
+                          background: '#4f46e5',
+                          color: '#ffffff',
                           fontSize: 12,
-                          cursor: "pointer",
+                          cursor: 'pointer',
                         }}
                       >
                         View Details

@@ -1,13 +1,11 @@
 // src/pages/admin/Settings.js
-import React, { useEffect, useState } from "react";
-import AdminLayout from "../../components/AdminLayout";
-import api from "../../api";
-import "./Settings.css";
+import React, { useEffect, useState } from 'react';
+import AdminLayout from '../../components/AdminLayout';
+import api from '../../api';
+import './Settings.css';
 
 // Build a base URL from axios config or window location
-const API_BASE =
-  (api.defaults?.baseURL && api.defaults.baseURL.replace(/\/$/, "")) ||
-  window.location.origin;
+const API_BASE = (api.defaults?.baseURL && api.defaults.baseURL.replace(/\/$/, '')) || window.location.origin;
 
 // Default avatar served by backend: backend/uploads/avatars/default-avatar.png
 const MOCKUP_AVATAR = `${API_BASE}/uploads/avatars/default-avatar.png`;
@@ -15,32 +13,32 @@ const MOCKUP_AVATAR = `${API_BASE}/uploads/avatars/default-avatar.png`;
 const Settings = () => {
   const [profile, setProfile] = useState({
     id: null,
-    name: "",
-    email: "",
-    phone: "",
-    avatar: "",
-    avatar_url: "",
+    name: '',
+    email: '',
+    phone: '',
+    avatar: '',
+    avatar_url: '',
     prefs: {},
   });
   const [loading, setLoading] = useState(false);
-  const [pw, setPw] = useState({ current: "", new: "", confirm: "" });
+  const [pw, setPw] = useState({ current: '', new: '', confirm: '' });
   const [notifPrefs, setNotifPrefs] = useState({ email: true, onsite: true });
 
   useEffect(() => {
     const load = async () => {
       try {
         setLoading(true);
-        const p = await api.get("/admin/profile");
+        const p = await api.get('/admin/profile');
         const pdata = p.data || {};
 
         // Normalize profile shape
         const newProfile = {
           id: pdata.id || null,
-          name: pdata.name || "",
-          email: pdata.email || "",
-          phone: pdata.phone || "",
-          avatar: pdata.avatar || "",
-          avatar_url: pdata.avatar_url || "", // backend may provide full url
+          name: pdata.name || '',
+          email: pdata.email || '',
+          phone: pdata.phone || '',
+          avatar: pdata.avatar || '',
+          avatar_url: pdata.avatar_url || '', // backend may provide full url
           prefs: pdata.prefs || (pdata.prefs === undefined ? {} : pdata.prefs),
         };
 
@@ -51,9 +49,9 @@ const Settings = () => {
           setNotifPrefs(newProfile.prefs);
         } else {
           try {
-            const prefsRes = await api.get("/admin/notifications/prefs");
+            const prefsRes = await api.get('/admin/notifications/prefs');
             let prefs = prefsRes.data || {};
-            if (typeof prefs === "string") {
+            if (typeof prefs === 'string') {
               try {
                 prefs = JSON.parse(prefs);
               } catch (e) {
@@ -62,12 +60,12 @@ const Settings = () => {
             }
             setNotifPrefs(prefs || {});
           } catch (prefsErr) {
-            console.warn("Could not load preferences:", prefsErr);
+            console.warn('Could not load preferences:', prefsErr);
             setNotifPrefs({ email: true, onsite: true });
           }
         }
       } catch (err) {
-        console.warn("Could not load profile:", err);
+        console.warn('Could not load profile:', err);
       } finally {
         setLoading(false);
       }
@@ -85,50 +83,48 @@ const Settings = () => {
         phone: profile.phone,
         // do not send avatar here; avatar is handled by upload endpoint
       };
-      await api.put("/admin/profile", payload);
-      alert("Profile updated");
+      await api.put('/admin/profile', payload);
+      alert('Profile updated');
     } catch (err) {
-      console.error("Profile update failed:", err);
-      alert("Profile update failed");
+      console.error('Profile update failed:', err);
+      alert('Profile update failed');
     }
   };
 
   const handlePasswordChange = async (e) => {
     e.preventDefault();
-    if (pw.new !== pw.confirm) return alert("New passwords do not match");
+    if (pw.new !== pw.confirm) return alert('New passwords do not match');
     try {
-      await api.put("/admin/change-password", {
+      await api.put('/admin/change-password', {
         currentPassword: pw.current,
         newPassword: pw.new,
       });
-      alert("Password changed");
-      setPw({ current: "", new: "", confirm: "" });
+      alert('Password changed');
+      setPw({ current: '', new: '', confirm: '' });
     } catch (err) {
-      console.error("Password change failed:", err);
-      alert("Password change failed");
+      console.error('Password change failed:', err);
+      alert('Password change failed');
     }
   };
 
   const handleAvatarUpload = async (file) => {
     if (!file) return;
     const form = new FormData();
-    form.append("avatar", file); // must match multer.single("avatar")
+    form.append('avatar', file); // must match multer.single("avatar")
 
     try {
-      const res = await api.post("/admin/avatar", form, {
+      const res = await api.post('/admin/avatar', form, {
         // override any default JSON header from the shared api instance
         headers: {
-          "Content-Type": "multipart/form-data",
+          'Content-Type': 'multipart/form-data',
         },
       });
 
       const data = res.data || {};
-      console.log("Avatar upload response:", data);
+      console.log('Avatar upload response:', data);
 
       // backend sends `url` (full) and `path` (relative) — prefer full url
-      const fullUrl =
-        data.url ||
-        (data.path ? `${API_BASE}/${data.path.replace(/^\/+/, "")}` : null);
+      const fullUrl = data.url || (data.path ? `${API_BASE}/${data.path.replace(/^\/+/, '')}` : null);
 
       setProfile((p) => ({
         ...p,
@@ -136,15 +132,11 @@ const Settings = () => {
         avatar_url: fullUrl || p.avatar_url || p.avatar,
       }));
 
-      alert("Avatar uploaded");
+      alert('Avatar uploaded');
     } catch (err) {
-      console.error("Upload failed:", err);
-      console.error("Upload error response:", err.response?.data);
-      alert(
-        `Upload failed${
-          err.response?.data?.message ? `: ${err.response.data.message}` : ""
-        }`,
-      );
+      console.error('Upload failed:', err);
+      console.error('Upload error response:', err.response?.data);
+      alert(`Upload failed${err.response?.data?.message ? `: ${err.response.data.message}` : ''}`);
     }
   };
 
@@ -152,20 +144,16 @@ const Settings = () => {
     const newPrefs = { ...notifPrefs, [key]: !notifPrefs[key] };
     setNotifPrefs(newPrefs);
     try {
-      await api.put("/admin/notifications/prefs", newPrefs);
+      await api.put('/admin/notifications/prefs', newPrefs);
     } catch (err) {
-      console.warn("Could not save prefs", err);
+      console.warn('Could not save prefs', err);
     }
   };
 
   // image source: prefer avatar_url (full), then avatar (relative/absolute), then MOCKUP_AVATAR
   const avatarSrc =
     profile.avatar_url ||
-    (profile.avatar
-      ? profile.avatar.startsWith("http")
-        ? profile.avatar
-        : `${API_BASE}/${profile.avatar.replace(/^\/+/, "")}`
-      : MOCKUP_AVATAR);
+    (profile.avatar ? (profile.avatar.startsWith('http') ? profile.avatar : `${API_BASE}/${profile.avatar.replace(/^\/+/, '')}`) : MOCKUP_AVATAR);
 
   return (
     <AdminLayout>
@@ -180,12 +168,7 @@ const Settings = () => {
               <div className="avatar-upload">
                 <label className="btn-upload">
                   Choose file
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) => handleAvatarUpload(e.target.files[0])}
-                    hidden
-                  />
+                  <input type="file" accept="image/*" onChange={(e) => handleAvatarUpload(e.target.files[0])} hidden />
                 </label>
                 <div className="small-note">PNG / JPG, recommended 256×256</div>
               </div>
@@ -196,20 +179,12 @@ const Settings = () => {
             <div className="prefs">
               <h3>Notification Preferences</h3>
               <label className="pref-row">
-                <input
-                  type="checkbox"
-                  checked={!!notifPrefs.email}
-                  onChange={() => toggleNotifPref("email")}
-                />
+                <input type="checkbox" checked={!!notifPrefs.email} onChange={() => toggleNotifPref('email')} />
                 <span>Email notifications</span>
               </label>
 
               <label className="pref-row">
-                <input
-                  type="checkbox"
-                  checked={!!notifPrefs.onsite}
-                  onChange={() => toggleNotifPref("onsite")}
-                />
+                <input type="checkbox" checked={!!notifPrefs.onsite} onChange={() => toggleNotifPref('onsite')} />
                 <span>On-site notifications</span>
               </label>
             </div>
@@ -222,34 +197,17 @@ const Settings = () => {
               <form onSubmit={handleProfileSave} className="form-grid">
                 <div className="form-row">
                   <label>Name</label>
-                  <input
-                    value={profile.name || ""}
-                    onChange={(e) =>
-                      setProfile({ ...profile, name: e.target.value })
-                    }
-                    required
-                  />
+                  <input value={profile.name || ''} onChange={(e) => setProfile({ ...profile, name: e.target.value })} required />
                 </div>
 
                 <div className="form-row">
                   <label>Email</label>
-                  <input
-                    value={profile.email || ""}
-                    onChange={(e) =>
-                      setProfile({ ...profile, email: e.target.value })
-                    }
-                    required
-                  />
+                  <input value={profile.email || ''} onChange={(e) => setProfile({ ...profile, email: e.target.value })} required />
                 </div>
 
                 <div className="form-row">
                   <label>Phone</label>
-                  <input
-                    value={profile.phone || ""}
-                    onChange={(e) =>
-                      setProfile({ ...profile, phone: e.target.value })
-                    }
-                  />
+                  <input value={profile.phone || ''} onChange={(e) => setProfile({ ...profile, phone: e.target.value })} />
                 </div>
 
                 <div className="form-actions">
@@ -265,32 +223,17 @@ const Settings = () => {
               <form onSubmit={handlePasswordChange} className="form-grid">
                 <div className="form-row">
                   <label>Current Password</label>
-                  <input
-                    type="password"
-                    value={pw.current}
-                    onChange={(e) => setPw({ ...pw, current: e.target.value })}
-                    required
-                  />
+                  <input type="password" value={pw.current} onChange={(e) => setPw({ ...pw, current: e.target.value })} required />
                 </div>
 
                 <div className="form-row">
                   <label>New Password</label>
-                  <input
-                    type="password"
-                    value={pw.new}
-                    onChange={(e) => setPw({ ...pw, new: e.target.value })}
-                    required
-                  />
+                  <input type="password" value={pw.new} onChange={(e) => setPw({ ...pw, new: e.target.value })} required />
                 </div>
 
                 <div className="form-row">
                   <label>Confirm New Password</label>
-                  <input
-                    type="password"
-                    value={pw.confirm}
-                    onChange={(e) => setPw({ ...pw, confirm: e.target.value })}
-                    required
-                  />
+                  <input type="password" value={pw.confirm} onChange={(e) => setPw({ ...pw, confirm: e.target.value })} required />
                 </div>
 
                 <div className="form-actions">
