@@ -2,16 +2,18 @@ import axios from 'axios';
 
 const api = axios.create({
   baseURL: 'https://quantumproject-wbu2.onrender.com',
-  withCredentials: true, // ✅ THIS WAS MISSING
+  // ❌ DO NOT use withCredentials for JWT
 });
 
-// Add token automatically
+// Attach JWT automatically
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('token');
+
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
+
     return config;
   },
   (error) => Promise.reject(error)
