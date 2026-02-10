@@ -1,59 +1,44 @@
-// backend/middleware/authMiddleware.js
 const jwt = require('jsonwebtoken');
 
-// Use environment variable in production; fallback for dev.
-const JWT_SECRET = process.env.JWT_SECRET || 'quantum_secret_123';
+// ✅ ONLY from environment — no fallback, no hardcode
+const JWT_SECRET = process.env.JWT_SECRET;
 
-/**
- * authenticateToken middleware
- * -----------------------------------------
- * Accepts JWT from:
- *  - Authorization: Bearer <token>
- *  - req.body.token
- *  - req.query.token
- *
- * On success:
- *    req.user = { id, role, email }
- *
- * On failure:
- *    Returns 401 JSON error
- */
 function authenticateToken(req, res, next) {
   try {
     let token = null;
 
-    // 1) Authorization header (preferred)
+    // 1) From Authorization header
     if (req.headers?.authorization?.startsWith('Bearer ')) {
       token = req.headers.authorization.replace('Bearer ', '').trim();
     }
 
-    // 2) Fallback: token from body or query
-    if (!token) token = req.body?.token || req.query?.token || null;
+    // 2) Fallback from body or query (optional)
+    if (!token) {
+      token = req.body?.token || req.query?.token || null;
+    }
 
-    // 3) If still no token, unauthorized
+    // 3) No token → reject
     if (!token) {
       return res.status(401).json({ message: 'No token provided' });
     }
 
-    // 4) Verify
+    // 4) Verify token
     const decoded = jwt.verify(token, JWT_SECRET);
 
-    // 5) Attach decoded payload to request
+    // 5) Attach user info to request
     req.user = {
       id: decoded.id,
       role: decoded.role,
       email: decoded.email || null,
     };
 
-    return next();
+    next();
   } catch (err) {
-    // Token expired, invalid, or malformed
     return res.status(401).json({
       message: 'Invalid or expired token',
-      error: err.message || err,
+      error: err.message,
     });
   }
 }
 
-// Export correctly for route usage
 module.exports = { authenticateToken };
