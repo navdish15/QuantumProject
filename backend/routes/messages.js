@@ -101,16 +101,17 @@ router.put(
       WHERE receiver_id = ? AND sender_id = ? AND is_read = 0
     `;
 
-    db.query(sql, [userId, otherUserId], (err, result) => {
-      if (err) {
-        console.error("Error marking messages read:", err);
-        return res
-          .status(500)
-          .json({ message: "Failed to mark messages as read" });
-      }
+db.query(sql, [userId, otherUserId], (err) => {
+  if (err) {
+    console.error("Error marking messages read:", err);
+    return res
+      .status(500)
+      .json({ message: "Failed to mark messages as read" });
+  }
 
-      res.json({ message: "Messages marked as read" });
-    });
+  res.json({ message: "Messages marked as read" });
+});
+
   }
 );
 

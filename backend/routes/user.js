@@ -52,13 +52,14 @@ router.post("/create-user", (req, res) => {
     VALUES (?, ?, ?, ?, ?)
   `;
 
-  db.query(query, [name, email, password, role, phone || null], (err, result) => {
-    if (err) {
-      console.log(err);
-      return res.status(500).json({ message: "Database error" });
-    }
-    res.json({ message: "User created successfully" });
-  });
+db.query(query, [name, email, password, role, phone || null], (err) => {
+  if (err) {
+    console.log(err);
+    return res.status(500).json({ message: "Database error" });
+  }
+  res.json({ message: "User created successfully" });
+});
+
 });
 
 // ---------------------------------------------------------
