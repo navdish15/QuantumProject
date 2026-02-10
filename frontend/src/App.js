@@ -2,7 +2,6 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Login from './pages/Login';
 import ProtectedRoute from './components/ProtectedRoute';
-import FloatingChatAdmin from './components/FloatingChatAdmin'; // ✅ IMPORTANT
 
 // ADMIN
 import AdminDashboard from './pages/admin/AdminDashboard';
@@ -129,9 +128,6 @@ function App() {
           {/* old support */}
           <Route path="/user-dashboard" element={<Navigate to="/user" replace />} />
         </Routes>
-
-        {/* ✅ CHAT ALWAYS MOUNTED */}
-        <FloatingChatAdmin />
       </>
     </Router>
   );
