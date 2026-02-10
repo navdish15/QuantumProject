@@ -1,4 +1,3 @@
-// src/components/FloatingChatAdmin.js
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import api from '../api';
 import { getUser } from '../utils/auth';
@@ -9,15 +8,10 @@ const FloatingChatAdmin = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [users, setUsers] = useState([]);
   const [selectedUserId, setSelectedUserId] = useState(null);
-  const [selectedUserName, setSelectedUserName] = useState('');
 
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
-
-  const [loadingMessages, setLoadingMessages] = useState(false);
-  const [loadingUsers, setLoadingUsers] = useState(false);
   const [sending, setSending] = useState(false);
-
   const [unreadCount, setUnreadCount] = useState(0);
 
   const messagesRef = useRef(null);
@@ -25,7 +19,6 @@ const FloatingChatAdmin = () => {
   // ---------------- LOAD USERS ----------------
   const loadUsers = useCallback(async () => {
     try {
-      setLoadingUsers(true);
       const res = await api.get('/admin/users');
 
       const list = Array.isArray(res.data) ? res.data : Array.isArray(res.data?.users) ? res.data.users : [];
@@ -37,18 +30,13 @@ const FloatingChatAdmin = () => {
 
       if (!selectedUserId || !stillExists) {
         if (filtered.length > 0) {
-          const u = filtered[0];
-          setSelectedUserId(u.id);
-          setSelectedUserName(u.name || u.email);
+          setSelectedUserId(filtered[0].id);
         } else {
           setSelectedUserId(null);
-          setSelectedUserName('');
         }
       }
     } catch (err) {
       console.error(err);
-    } finally {
-      setLoadingUsers(false);
     }
   }, [selectedUserId]);
 
@@ -56,22 +44,12 @@ const FloatingChatAdmin = () => {
   const loadMessages = useCallback(async () => {
     if (!selectedUserId) return;
     try {
-      setLoadingMessages(true);
       const res = await api.get(`/messages/conversation/${selectedUserId}`);
       setMessages(Array.isArray(res.data) ? res.data : []);
     } catch (err) {
       console.error(err);
-    } finally {
-      setLoadingMessages(false);
     }
   }, [selectedUserId]);
-
-  // ---------------- AUTO NAME SYNC ----------------
-  useEffect(() => {
-    if (!selectedUserId) return;
-    const u = users.find((x) => x.id === selectedUserId);
-    if (u) setSelectedUserName(u.name || u.email);
-  }, [users, selectedUserId]);
 
   // ---------------- UNREAD COUNT ----------------
   const loadUnreadCount = useCallback(async () => {
