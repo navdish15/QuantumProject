@@ -1,4 +1,3 @@
-// src/pages/admin/Settings.js
 import React, { useEffect, useState } from 'react';
 import AdminLayout from '../../components/AdminLayout';
 import api from '../../api';
@@ -20,31 +19,36 @@ const Settings = () => {
     avatar_url: '',
     prefs: {},
   });
-  const [loading, setLoading] = useState(false);
-  const [pw, setPw] = useState({ current: '', new: '', confirm: '' });
-  const [notifPrefs, setNotifPrefs] = useState({ email: true, onsite: true });
+
+  const [pw, setPw] = useState({
+    current: '',
+    new: '',
+    confirm: '',
+  });
+
+  const [notifPrefs, setNotifPrefs] = useState({
+    email: true,
+    onsite: true,
+  });
 
   useEffect(() => {
     const load = async () => {
       try {
-        setLoading(true);
         const p = await api.get('/admin/profile');
         const pdata = p.data || {};
 
-        // Normalize profile shape
         const newProfile = {
           id: pdata.id || null,
           name: pdata.name || '',
           email: pdata.email || '',
           phone: pdata.phone || '',
           avatar: pdata.avatar || '',
-          avatar_url: pdata.avatar_url || '', // backend may provide full url
+          avatar_url: pdata.avatar_url || '',
           prefs: pdata.prefs || (pdata.prefs === undefined ? {} : pdata.prefs),
         };
 
         setProfile(newProfile);
 
-        // prefer prefs from profile; fallback to separate endpoint if empty
         if (newProfile.prefs && Object.keys(newProfile.prefs).length > 0) {
           setNotifPrefs(newProfile.prefs);
         } else {
@@ -54,20 +58,17 @@ const Settings = () => {
             if (typeof prefs === 'string') {
               try {
                 prefs = JSON.parse(prefs);
-              } catch (e) {
+              } catch {
                 prefs = {};
               }
             }
             setNotifPrefs(prefs || {});
-          } catch (prefsErr) {
-            console.warn('Could not load preferences:', prefsErr);
+          } catch {
             setNotifPrefs({ email: true, onsite: true });
           }
         }
       } catch (err) {
         console.warn('Could not load profile:', err);
-      } finally {
-        setLoading(false);
       }
     };
     load();
@@ -76,17 +77,13 @@ const Settings = () => {
   const handleProfileSave = async (e) => {
     e.preventDefault();
     try {
-      // send only fields we want to update
-      const payload = {
+      await api.put('/admin/profile', {
         name: profile.name,
         email: profile.email,
         phone: profile.phone,
-        // do not send avatar here; avatar is handled by upload endpoint
-      };
-      await api.put('/admin/profile', payload);
+      });
       alert('Profile updated');
-    } catch (err) {
-      console.error('Profile update failed:', err);
+    } catch {
       alert('Profile update failed');
     }
   };
@@ -94,6 +91,7 @@ const Settings = () => {
   const handlePasswordChange = async (e) => {
     e.preventDefault();
     if (pw.new !== pw.confirm) return alert('New passwords do not match');
+
     try {
       await api.put('/admin/change-password', {
         currentPassword: pw.current,
@@ -101,23 +99,20 @@ const Settings = () => {
       });
       alert('Password changed');
       setPw({ current: '', new: '', confirm: '' });
-    } catch (err) {
-      console.error('Password change failed:', err);
+    } catch {
       alert('Password change failed');
     }
   };
 
   const handleAvatarUpload = async (file) => {
     if (!file) return;
+
     const form = new FormData();
-    form.append('avatar', file); // must match multer.single("avatar")
+    form.append('avatar', file);
 
     try {
       const res = await api.post('/admin/avatar', form, {
-        // override any default JSON header from the shared api instance
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
+        headers: { 'Content-Type': 'multipart/form-data' },
       });
 
       const data = res.data || {};
@@ -134,8 +129,6 @@ const Settings = () => {
 
       alert('Avatar uploaded');
     } catch (err) {
-      console.error('Upload failed:', err);
-      console.error('Upload error response:', err.response?.data);
       alert(`Upload failed${err.response?.data?.message ? `: ${err.response.data.message}` : ''}`);
     }
   };
