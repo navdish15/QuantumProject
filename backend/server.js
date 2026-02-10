@@ -4,15 +4,23 @@ const path = require('path');
 
 const app = express();
 
-// ✅ FIXED CORS
+// ✅ CORRECT CORS FOR VERCEL + RENDER
 app.use(
   cors({
-    origin: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
+    origin: function (origin, callback) {
+      if (!origin) return callback(null, true);
+
+      if (origin === 'https://quantum-project-blush.vercel.app' || origin.endsWith('.vercel.app')) {
+        return callback(null, true);
+      }
+
+      callback(new Error('Not allowed by CORS'));
+    },
     credentials: true,
   })
 );
+
+// ✅ Needed for preflight requests
 app.options('*', cors());
 
 app.use(express.json());
