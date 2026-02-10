@@ -6,7 +6,12 @@ const path = require('path');
 const app = express();
 
 // GLOBAL MIDDLEWARES
-app.use(cors());
+app.use(
+  cors({
+    origin: ['https://quantum-neuton.vercel.app'], // your Vercel URL
+    credentials: true,
+  })
+);
 app.use(express.json());
 
 // STATIC UPLOADS FOLDER
