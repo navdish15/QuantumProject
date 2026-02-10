@@ -16,7 +16,6 @@ const FloatingChatAdmin = () => {
 
   const messagesRef = useRef(null);
 
-  // ---------------- LOAD USERS ----------------
   const loadUsers = useCallback(async () => {
     try {
       const res = await api.get('/admin/users');
@@ -26,21 +25,14 @@ const FloatingChatAdmin = () => {
       const filtered = list.filter((u) => u.role !== 'admin');
       setUsers(filtered);
 
-      const stillExists = filtered.some((u) => u.id === selectedUserId);
-
-      if (!selectedUserId || !stillExists) {
-        if (filtered.length > 0) {
-          setSelectedUserId(filtered[0].id);
-        } else {
-          setSelectedUserId(null);
-        }
+      if (!selectedUserId && filtered.length > 0) {
+        setSelectedUserId(filtered[0].id);
       }
     } catch (err) {
       console.error(err);
     }
   }, [selectedUserId]);
 
-  // ---------------- LOAD MESSAGES ----------------
   const loadMessages = useCallback(async () => {
     if (!selectedUserId) return;
     try {
@@ -51,7 +43,6 @@ const FloatingChatAdmin = () => {
     }
   }, [selectedUserId]);
 
-  // ---------------- UNREAD COUNT ----------------
   const loadUnreadCount = useCallback(async () => {
     try {
       const res = await api.get('/messages/unread-count');
@@ -59,15 +50,6 @@ const FloatingChatAdmin = () => {
     } catch {}
   }, []);
 
-  const markConversationRead = useCallback(async () => {
-    if (!selectedUserId) return;
-    try {
-      await api.put(`/messages/conversation/${selectedUserId}/mark-read`);
-      loadUnreadCount();
-    } catch {}
-  }, [selectedUserId, loadUnreadCount]);
-
-  // ---------------- OPEN EFFECT ----------------
   useEffect(() => {
     if (isOpen) {
       loadUsers();
@@ -75,29 +57,16 @@ const FloatingChatAdmin = () => {
     }
   }, [isOpen, loadUsers, loadUnreadCount]);
 
-  // ---------------- POLLING ----------------
-  useEffect(() => {
-    const i = setInterval(loadUnreadCount, 15000);
-    return () => clearInterval(i);
-  }, [loadUnreadCount]);
-
   useEffect(() => {
     if (!isOpen || !selectedUserId) return;
 
     loadMessages();
-    markConversationRead();
 
-    const i = setInterval(() => {
-      loadMessages();
-      markConversationRead();
-    }, 10000);
-
+    const i = setInterval(loadMessages, 10000);
     return () => clearInterval(i);
-  }, [isOpen, selectedUserId, loadMessages, markConversationRead]);
+  }, [isOpen, selectedUserId, loadMessages]);
 
-  // ---------------- AUTO SCROLL ----------------
   useEffect(() => {
-    if (!isOpen) return;
     const t = setTimeout(() => {
       messagesRef.current?.scrollTo({
         top: messagesRef.current.scrollHeight,
@@ -105,9 +74,8 @@ const FloatingChatAdmin = () => {
       });
     }, 50);
     return () => clearTimeout(t);
-  }, [messages, isOpen]);
+  }, [messages]);
 
-  // ---------------- SEND ----------------
   const handleSend = async (e) => {
     e.preventDefault();
     if (!newMessage.trim() || !selectedUserId) return;
@@ -146,19 +114,8 @@ const FloatingChatAdmin = () => {
             zIndex: 1000,
           }}
         >
-          {/* Header */}
-          <div
-            style={{
-              padding: 10,
-              background: '#0f172a',
-              color: '#fff',
-              fontSize: 14,
-            }}
-          >
-            Admin Chat {admin?.name ? `– ${admin.name}` : ''}
-          </div>
+          <div style={{ padding: 10, background: '#0f172a', color: '#fff' }}>Admin Chat {admin?.name ? `– ${admin.name}` : ''}</div>
 
-          {/* Users */}
           <div style={{ padding: 8, borderBottom: '1px solid #eee' }}>
             <select value={selectedUserId || ''} onChange={(e) => setSelectedUserId(Number(e.target.value))} style={{ width: '100%' }}>
               {users.map((u) => (
@@ -169,26 +126,11 @@ const FloatingChatAdmin = () => {
             </select>
           </div>
 
-          {/* Messages */}
-          <div
-            ref={messagesRef}
-            style={{
-              flex: 1,
-              overflowY: 'auto',
-              padding: 10,
-              background: '#f8fafc',
-            }}
-          >
+          <div ref={messagesRef} style={{ flex: 1, overflowY: 'auto', padding: 10 }}>
             {messages.map((m) => {
               const isAdmin = m.sender_id === admin?.id;
               return (
-                <div
-                  key={m.id}
-                  style={{
-                    textAlign: isAdmin ? 'right' : 'left',
-                    marginBottom: 6,
-                  }}
-                >
+                <div key={m.id} style={{ textAlign: isAdmin ? 'right' : 'left', marginBottom: 6 }}>
                   <div
                     style={{
                       display: 'inline-block',
@@ -207,7 +149,6 @@ const FloatingChatAdmin = () => {
             })}
           </div>
 
-          {/* Input */}
           <form onSubmit={handleSend} style={{ display: 'flex', padding: 8, gap: 6 }}>
             <input value={newMessage} onChange={(e) => setNewMessage(e.target.value)} style={{ flex: 1 }} />
             <button type="submit" disabled={sending}>
@@ -217,7 +158,6 @@ const FloatingChatAdmin = () => {
         </div>
       )}
 
-      {/* Floating button */}
       <div
         onClick={() => setIsOpen((p) => !p)}
         style={{
